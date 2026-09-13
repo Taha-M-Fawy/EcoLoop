@@ -3,6 +3,7 @@ const app = express();
 
 const { connectDB } = require("./config/db.config.js");
 const { PORT } = require("./config/env.config.js");
+const notificationsRoutes = require("./routes/notifications.routes.js"); // NEW
 
 //*---MIDDLEWARES---
 app.use(express.json()); // Built-in middleware to parse JSON
@@ -11,6 +12,10 @@ app.use(express.json()); // Built-in middleware to parse JSON
 app.get("/", (req, res) => {
   res.send("EcoLoop Server is working successfully!");
 });
+
+//*---ROUTES---
+app.use("/api/notifications", notificationsRoutes); // NEW
+
 //*---CONNECT DB & START SERVER---
 connectDB();
 

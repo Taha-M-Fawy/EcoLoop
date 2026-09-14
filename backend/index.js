@@ -1,19 +1,24 @@
-const express = require("express");
+const express = require('express');
+const { connectDB } = require('./config/db.config');
+const { PORT } = require('./config/env.config');
+const errorHandler = require('./middlewares/errorHandler');
+
+const userRoutes = require('./routes/user.route');
+const categoryRoutes = require('./routes/category.route');
+
 const app = express();
 
-const { connectDB } = require("./config/db.config.js");
-const { PORT } = require("./config/env.config.js");
+app.use(express.json());
 
-//*---MIDDLEWARES---
-app.use(express.json()); // Built-in middleware to parse JSON
+app.use('/api/users', userRoutes);
+app.use('/api/categories', categoryRoutes);
 
-//*---TEST ROUTE (Home)---
-app.get("/", (req, res) => {
-  res.send("EcoLoop Server is working successfully!");
-});
-//*---CONNECT DB & START SERVER---
-connectDB();
+app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`my app listening on port ${PORT} successfully`);
+const serverPort = PORT || 5000;
+
+connectDB().then(() => {
+  app.listen(serverPort, () => {
+    console.log(`Server running on port ${serverPort}`);
+  });
 });

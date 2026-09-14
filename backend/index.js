@@ -19,6 +19,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 //Reviews Routes 
 
+const { connectDB } = require("./config/db.config.js");
+const { PORT } = require("./config/env.config.js");
+const notificationsRoutes = require("./routes/notifications.routes.js"); // NEW
 
 //*---MIDDLEWARES---
 app.use(express.json()); // Built-in middleware to parse JSON
@@ -38,6 +41,8 @@ connectDB().then(() => {
 app.use("/api/reviews", reviewsRoutes); // NEW
 
 
+//*---ROUTES---
+app.use("/api/notifications", notificationsRoutes); // NEW
 
 //*---CONNECT DB & START SERVER---
 connectDB();

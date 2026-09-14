@@ -2,51 +2,38 @@ const express = require('express');
 const { connectDB } = require('./config/db.config');
 const { PORT } = require('./config/env.config');
 
-
+// Routes Imports
 const itemRoutes = require('./routes/item.routes');
-const errorHandler = require('./middlewares/errorHandler');
-
 const userRoutes = require('./routes/user.route');
 const categoryRoutes = require('./routes/category.route');
-const reviewsRoutes = require("./routes/reviews.routes.js"); 
+const reviewsRoutes = require('./routes/reviews.routes');
+const notificationsRoutes = require('./routes/notifications.routes');
+
+// Middlewares Imports
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
+//*--- GLOBAL MIDDLEWARES ---*//
 app.use(express.json());
-app.use('/api/items', itemRoutes);
 
+//*--- API ROUTES ---*//
+app.use('/api/items', itemRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
-//Reviews Routes 
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
-const { connectDB } = require("./config/db.config.js");
-const { PORT } = require("./config/env.config.js");
-const notificationsRoutes = require("./routes/notifications.routes.js"); // NEW
-
-//*---MIDDLEWARES---
-app.use(express.json()); // Built-in middleware to parse JSON
-
+//*--- ERROR HANDLING MIDDLEWARE ---*//
 app.use(errorHandler);
 
+//*--- CONNECT DB & START SERVER ---*//
 const serverPort = PORT || 5000;
 
 connectDB().then(() => {
   app.listen(serverPort, () => {
-    console.log(`Server running on port ${serverPort}`);
+    console.log(`Server running successfully on port ${serverPort}`);
   });
-});
-
-
-//*---ROUTES---
-app.use("/api/reviews", reviewsRoutes); // NEW
-
-
-//*---ROUTES---
-app.use("/api/notifications", notificationsRoutes); // NEW
-
-//*---CONNECT DB & START SERVER---
-connectDB();
-
-app.listen(PORT, () => {
-  console.log(`my app listening on port ${PORT} successfully`);
+}).catch((err) => {
+  console.error('Failed to connect to DB:', err);
 });

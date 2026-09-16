@@ -1,13 +1,14 @@
 import { Routes } from '@angular/router';
-import { Home } from './shared/components/home/home';
+import { HomeComponent } from './shared/components/home/home';
 import { NotFound } from './shared/components/not-found/not-found';
 
 export const routes: Routes = [
-  { path: '', component: Home, pathMatch: 'full' },
+  
+  { path: '', component: HomeComponent, pathMatch: 'full' },
 
   {
     path: 'items',
-    loadChildren: () => import('./features/items/items.routes').then(m => m.ITEMS_ROUTES)
+    loadChildren: () => import('./features/items/items.routes').then(m => m.ITEM_ROUTES)
   },
   {
     path: 'auth',

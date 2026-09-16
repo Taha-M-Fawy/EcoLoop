@@ -1,0 +1,26 @@
+<footer class="border-t border-slate-200 bg-white text-slate-600 mt-auto" dir="rtl">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      
+      <!-- اللوجو والوصف السريع -->
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-base shadow-xs">♻️</span>
+        <span class="font-bold text-slate-800 text-sm">إيكو لوب</span>
+        <span class="text-xs text-slate-400 hidden sm:inline">| منصة لتبادل وتبرع السلع المستعملة</span>
+      </div>
+
+      <!-- الروابط الفعلية فقط -->
+      <div class="flex items-center gap-6 text-xs font-semibold text-slate-600">
+        <a routerLink="/" class="hover:text-emerald-600 transition">الرئيسية</a>
+        <a routerLink="/items" class="hover:text-emerald-600 transition">المعروضات</a>
+        <a routerLink="/items/new" class="hover:text-emerald-600 transition">أضف سلعة</a>
+      </div>
+
+      <!-- الحقوق البسيطة -->
+      <p class="text-xs text-slate-400">
+        {{ currentYear }} EcoLoop ©
+      </p>
+
+    </div>
+  </div>
+</footer>

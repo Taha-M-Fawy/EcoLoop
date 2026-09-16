@@ -1,9 +1,12 @@
 const errorHandler = (err, req, res, next) => {
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  const statusCode = err.statusCode || err.status || (res.statusCode === 200 ? 500 : res.statusCode) || 500;
+
+  console.error(`[Error] ${req.method} ${req.originalUrl}:`, err.message);
 
   res.status(statusCode).json({
-    message: err.message || 'Server Error',
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack
+    success: false,
+    message: err.message || 'حدث خطأ داخلي في الخادم',
+    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack
   });
 };
 

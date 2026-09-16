@@ -1,1 +1,143 @@
-<p>item-list works!</p>
+<div class="min-h-screen bg-slate-50 text-slate-800" dir="rtl">
+  
+  <!-- Sub-Navbar Bar: شريط فلترة ثابت وموزع بالتساوي بدون سيرش مكرر -->
+  <div class="sticky top-[64px] z-30 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+
+        <!-- Categories Filter -->
+        <div>
+          <select
+            [(ngModel)]="filters.categoryId"
+            (change)="applyFilters()"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer"
+          >
+            <option value="">كل التصنيفات</option>
+            <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+          </select>
+        </div>
+
+        <!-- Type Filter -->
+        <div>
+          <select
+            [(ngModel)]="filters.type"
+            (change)="applyFilters()"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer"
+          >
+            <option value="all">جميع المعاملات</option>
+            <option value="donation">🎁 تبرع مجاني</option>
+            <option value="exchange">🔄 تبادل مباشر</option>
+            <option value="sell">🏷️ بيع رمزي</option>
+          </select>
+        </div>
+
+        <!-- Governorate Select -->
+        <div>
+          <select
+            [(ngModel)]="filters.governorate"
+            (change)="onGovChange()"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer"
+          >
+            <option value="">كل المحافظات</option>
+            <option *ngFor="let gov of governorates" [value]="gov">{{ gov }}</option>
+          </select>
+        </div>
+
+        <!-- City Select -->
+        <div>
+          <select
+            [(ngModel)]="filters.city"
+            (change)="applyFilters()"
+            [disabled]="!filters.governorate"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <option value="">
+              {{ filters.governorate ? 'كل المراكز / المدن' : 'اختر المحافظة أولاً' }}
+            </option>
+            <option *ngFor="let c of availableCities" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- محتوى الكروت وباقي الصفحة -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    
+    <!-- Skeletons (Loading) -->
+    <div
+      *ngIf="loading"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+    >
+      <div
+        *ngFor="let n of [1, 2, 3, 4, 5, 6, 7, 8]"
+        class="h-80 animate-pulse rounded-2xl bg-slate-200/80"
+      ></div>
+    </div>
+
+    <!-- Items Grid -->
+    <div
+      *ngIf="!loading && items.length > 0"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-stretch"
+    >
+      <app-item-card *ngFor="let item of items" [item]="item" class="h-full" />
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="!loading && items.length === 0"
+      class="rounded-2xl border border-slate-200 bg-white py-16 text-center shadow-xs"
+    >
+      <div class="text-4xl mb-3">🔍</div>
+      <h3 class="text-base font-bold text-slate-800">لا توجد معروضات مطابقة</h3>
+      <p class="text-xs text-slate-500 mt-1">جرّب تغيير التصنيف أو المحافظة لإظهار نتائج أخرى.</p>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div
+      *ngIf="!loading && totalItems > 0"
+      class="mt-12 flex flex-col items-center justify-between gap-4 sm:flex-row border-t border-slate-200 pt-6"
+    >
+      <p class="text-xs text-slate-500">
+        الصفحة <span class="font-bold text-slate-800">{{ currentPage }}</span> من إجمالي
+        <span class="font-bold text-slate-800">{{ totalPages }}</span> صفحات ({{ totalItems }} سلعة)
+      </p>
+
+      <div class="flex items-center gap-1.5">
+        <button
+          type="button"
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+          class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 shadow-xs transition hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+        >
+          السابق
+        </button>
+
+        <button
+          *ngFor="let page of pagesArray"
+          type="button"
+          (click)="goToPage(page)"
+          [class.bg-emerald-600]="currentPage === page"
+          [class.text-white]="currentPage === page"
+          [class.border-emerald-600]="currentPage === page"
+          [class.bg-white]="currentPage !== page"
+          [class.text-slate-700]="currentPage !== page"
+          class="h-9 w-9 rounded-xl border border-slate-200 text-xs font-bold transition flex items-center justify-center shadow-xs hover:border-emerald-500 cursor-pointer"
+        >
+          {{ page }}
+        </button>
+
+        <button
+          type="button"
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages || totalPages === 0"
+          class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 shadow-xs transition hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+        >
+          التالي
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

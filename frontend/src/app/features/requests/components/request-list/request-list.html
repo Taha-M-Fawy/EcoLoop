@@ -1,11 +1,11 @@
 <div class="requests-page">
 
   <div class="page-header">
-    <span class="section-label">COMMUNITY REQUESTS</span>
+    <span class="section-label">طلبات المجتمع</span>
 
-    <h1>Small acts can meet urgent needs.</h1>
+    <h1>مساعدة بسيطة تلبي احتياجات مهمة.</h1>
 
-    <p>Help someone in the community find what they need.</p>
+    <p>ساعد شخصًا في مجتمعك على إيجاد ما يحتاجه.</p>
   </div>
 
   @if (error) {
@@ -16,7 +16,7 @@
 
   @if (!loading && !error && requests.length === 0) {
     <div class="message">
-      No requests found.
+      لا توجد طلبات حاليًا.
     </div>
   }
 
@@ -24,24 +24,30 @@
 
     @for (request of requests; track request._id) {
 
-      <div
-        class="request-card"
-        [class.high-priority]="request.urgency === 'High'"
-      >
+      <div class="request-card">
 
         <div class="request-top">
 
           <span
             class="urgency"
-            [class.low]="request.urgency === 'Low'"
-            [class.medium]="request.urgency === 'Medium'"
             [class.high]="request.urgency === 'High'"
-          >
-            {{ request.urgency }}
+            [class.medium]="request.urgency === 'Medium'"
+            [class.low]="request.urgency === 'Low'">
+            @if (request.urgency === 'High') {
+              مرتفع
+            } @else if (request.urgency === 'Medium') {
+              متوسط
+            } @else {
+              منخفض
+            }
           </span>
 
-          <span class="request-status">
-            {{ request.status }}
+          <span class="status">
+            @if (request.status === 'Open') {
+              مفتوح
+            } @else {
+              مغلق
+            }
           </span>
 
         </div>
@@ -54,20 +60,20 @@
             {{ request.description }}
           </p>
 
-          <div class="request-details">
+        </div>
 
-            <div class="detail">
-              <span class="detail-label">Quantity</span>
-              <strong>{{ request.quantity }} needed</strong>
-            </div>
+        <div class="request-info">
 
-            <div class="detail">
-              <span class="detail-label">Location</span>
-              <strong>
-                {{ request.city }}, {{ request.governorate }}
-              </strong>
-            </div>
+          <div class="info-row">
+            <span>الكمية</span>
+            <strong>{{ request.quantity }} مطلوب</strong>
+          </div>
 
+          <div class="info-row">
+            <span>الموقع</span>
+            <strong>
+              {{ request.city }}، {{ request.governorate }}
+            </strong>
           </div>
 
         </div>
@@ -79,14 +85,14 @@
             <button
               type="button"
               class="offer-btn">
-              Offer Item
+              تقديم عنصر
             </button>
 
             <button
               type="button"
               class="delete-btn"
               (click)="deleteRequest(request._id)">
-              Delete
+              حذف
             </button>
 
           </div>

@@ -15,18 +15,17 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
-//*--- GLOBAL MIDDLEWARES ---*//
-app.use(
-  cors({
-    origin: 'http://localhost:4200',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
-  })
-);
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(cors({
+  origin: 'http://localhost:4200',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
+}));
+
+app.use(express.json());
 
 //*--- API ROUTES ---*//
 app.use('/api/items', itemRoutes);

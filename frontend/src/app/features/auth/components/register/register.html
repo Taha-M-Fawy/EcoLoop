@@ -1,0 +1,54 @@
+<div class="register-page">
+  <div class="register-card">
+
+    <div class="logo">EcoLoop</div>
+
+    <h1>إنشاء حساب</h1>
+    <p class="subtitle">انضم إلى EcoLoop</p>
+
+    <form (ngSubmit)="onRegister()">
+
+      <div class="input-group">
+        <label>اسم المستخدم</label>
+        <input
+          type="text"
+          name="username"
+          [(ngModel)]="username"
+          placeholder="أدخل اسم المستخدم"
+          required
+        >
+      </div>
+
+      <div class="input-group">
+        <label>البريد الإلكتروني</label>
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          placeholder="أدخل بريدك الإلكتروني"
+          required
+        >
+      </div>
+
+      <div class="input-group">
+        <label>كلمة المرور</label>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="أدخل كلمة المرور"
+          required
+        >
+      </div>
+
+      <button type="submit">إنشاء الحساب</button>
+
+    </form>
+
+    <p class="login-text">
+      لديك حساب بالفعل؟
+      <a routerLink="/auth/login">تسجيل الدخول</a>
+    </p>
+
+  </div>
+</div>

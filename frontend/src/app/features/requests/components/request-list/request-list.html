@@ -1,11 +1,11 @@
 <div class="requests-page">
 
   <div class="page-header">
-    <span class="section-label">طلبات المجتمع</span>
+    <span class="section-label">طلبات الناس</span>
 
-    <h1>مساعدة بسيطة تلبي احتياجات مهمة.</h1>
+    <h1>محتاج حاجة؟ يمكن حد عنده اللي إنت محتاجه.</h1>
 
-    <p>ساعد شخصًا في مجتمعك على إيجاد ما يحتاجه.</p>
+    <p>شوف طلبات الناس حواليك وساعد حد بحاجة مش محتاجها.</p>
   </div>
 
   @if (error) {
@@ -14,95 +14,101 @@
     </div>
   }
 
-  @if (!loading && !error && requests.length === 0) {
+  @if (requests.length === 0 && !error) {
     <div class="message">
-      لا توجد طلبات حاليًا.
+      جاري تحميل الطلبات...
     </div>
   }
 
-  <div class="requests-grid">
+  @if (requests.length > 0) {
 
-    @for (request of requests; track request._id) {
+    <div class="requests-grid">
 
-      <div class="request-card">
+      @for (request of requests; track request._id) {
 
-        <div class="request-top">
+        <div class="request-card">
 
-          <span
-            class="urgency"
-            [class.high]="request.urgency === 'High'"
-            [class.medium]="request.urgency === 'Medium'"
-            [class.low]="request.urgency === 'Low'">
-            @if (request.urgency === 'High') {
-              مرتفع
-            } @else if (request.urgency === 'Medium') {
-              متوسط
-            } @else {
-              منخفض
-            }
-          </span>
+          <div class="request-top">
 
-          <span class="status">
-            @if (request.status === 'Open') {
-              مفتوح
-            } @else {
-              مغلق
-            }
-          </span>
+            <span
+              class="urgency"
+              [class.high]="request.urgency === 'High'"
+              [class.medium]="request.urgency === 'Medium'"
+              [class.low]="request.urgency === 'Low'">
 
-        </div>
+              @if (request.urgency === 'High') {
+                مستعجل
+              } @else if (request.urgency === 'Medium') {
+                عادي
+              } @else {
+                مش مستعجل
+              }
 
-        <div class="request-content">
+            </span>
 
-          <h2>{{ request.title }}</h2>
-
-          <p class="description">
-            {{ request.description }}
-          </p>
-
-        </div>
-
-        <div class="request-info">
-
-          <div class="info-row">
-            <span>الكمية</span>
-            <strong>{{ request.quantity }} مطلوب</strong>
-          </div>
-
-          <div class="info-row">
-            <span>الموقع</span>
-            <strong>
-              {{ request.city }}، {{ request.governorate }}
-            </strong>
-          </div>
-
-        </div>
-
-        @if (request._id) {
-
-          <div class="request-actions">
-
-            <button
-              type="button"
-              class="offer-btn">
-              تقديم عنصر
-            </button>
-
-            <button
-              type="button"
-              class="delete-btn"
-              (click)="deleteRequest(request._id)">
-              حذف
-            </button>
+            <span class="status">
+              @if (request.status === 'Open') {
+                لسه مفتوح
+              } @else {
+                اتقفل
+              }
+            </span>
 
           </div>
 
-        }
+          <div class="request-content">
 
-      </div>
+            <h2>{{ getTitle(request.title) }}</h2>
 
-    }
+            <p class="description">
+              {{ getDescription(request.description) }}
+            </p>
 
-  </div>
+          </div>
+
+          <div class="request-info">
+
+            <div class="info-row">
+              <span>الكمية</span>
+              <strong>{{ request.quantity }} مطلوب</strong>
+            </div>
+
+            <div class="info-row">
+              <span>المكان</span>
+              <strong>
+                {{ getCity(request.city) }}، {{ getGovernorate(request.governorate) }}
+              </strong>
+            </div>
+
+          </div>
+
+          @if (request._id) {
+
+            <div class="request-actions">
+
+              <button
+                type="button"
+                class="offer-btn">
+                عندي اللي محتاجه
+              </button>
+
+              <button
+                type="button"
+                class="delete-btn"
+                (click)="deleteRequest(request._id)">
+                حذف الطلب
+              </button>
+
+            </div>
+
+          }
+
+        </div>
+
+      }
+
+    </div>
+
+  }
 
 </div>

@@ -1,4 +1,1 @@
-import { Service } from '@angular/core';
-
-@Service()
-export class Transaction {}
+export * from './transaction.service';

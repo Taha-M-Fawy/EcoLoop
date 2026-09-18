@@ -16,6 +16,9 @@
           <a routerLink="/items" routerLinkActive="text-emerald-600 font-black" [routerLinkActiveOptions]="{ exact: true }" class="hover:text-emerald-600 transition">
             المعروضات
           </a>
+          <a routerLink="/transactions" routerLinkActive="text-emerald-600 font-black" class="hover:text-emerald-600 transition">
+            المعاملات
+          </a>
 
           <!-- قائمة التصنيفات -->
           <div class="relative">
@@ -112,6 +115,7 @@
 
               <a routerLink="/profile" (click)="isUserMenuOpen.set(false)" class="block px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">👤 الملف الشخصي</a>
               <a routerLink="/items" [queryParams]="{ owner: 'me' }" (click)="isUserMenuOpen.set(false)" class="block px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">📦 معروضاتي</a>
+              <a routerLink="/transactions" (click)="isUserMenuOpen.set(false)" class="block px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">🔄 سجل المعاملات</a>
               
               <div class="border-t border-slate-100 my-1"></div>
               <button type="button" (click)="logout()" class="w-full text-right px-4 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 cursor-pointer">🚪 تسجيل الخروج</button>
@@ -150,5 +154,6 @@
   <div *ngIf="isMobileMenuOpen()" class="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-3">
     <a (click)="toggleMobileMenu()" routerLink="/" class="block text-xs font-bold text-slate-800">الرئيسية</a>
     <a (click)="toggleMobileMenu()" routerLink="/items" class="block text-xs font-bold text-slate-800">جميع المعروضات</a>
+    <a (click)="toggleMobileMenu()" routerLink="/transactions" class="block text-xs font-bold text-slate-800">المعاملات</a>
   </div>
 </nav>

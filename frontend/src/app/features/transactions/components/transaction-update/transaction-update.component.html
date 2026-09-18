@@ -1,0 +1,133 @@
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  <!-- Back button -->
+  <div class="mb-6">
+    <a 
+      [routerLink]="transaction ? ['/transactions', transaction._id] : '/transactions'" 
+      class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-emerald-600 bg-white border border-slate-200 px-4 py-2 rounded-xl transition cursor-pointer"
+    >
+      <span>←</span>
+      <span>Back to Details</span>
+    </a>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="py-20 text-center bg-white border border-slate-200 rounded-3xl shadow-xs">
+    <div class="inline-block w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <p class="text-xs font-bold text-slate-500">Loading transaction data...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!loading && errorMessage && !transaction" class="bg-rose-50 border border-rose-200 rounded-3xl p-8 text-center">
+    <div class="text-4xl mb-3">⚠️</div>
+    <h3 class="text-base font-bold text-rose-800 mb-1">Unable to Load</h3>
+    <p class="text-xs text-rose-600 mb-6">{{ errorMessage }}</p>
+    <a 
+      routerLink="/transactions" 
+      class="inline-block bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-6 py-2.5 rounded-xl transition cursor-pointer"
+    >
+      Back to List
+    </a>
+  </div>
+
+  <!-- Form content -->
+  <div *ngIf="!loading && transaction" class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs">
+    
+    <!-- Title -->
+    <div class="flex items-center gap-3 mb-6 pb-6 border-b border-slate-100">
+      <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl shadow-xs">
+        ✏️
+      </div>
+      <div>
+        <h1 class="text-xl font-black text-slate-900">Update Transaction Status</h1>
+        <p class="text-xs font-semibold text-slate-500 mt-0.5">Transaction ID: <span class="font-mono text-slate-700 inline-block">{{ transaction._id }}</span></p>
+      </div>
+    </div>
+
+    <!-- Error alert -->
+    <div *ngIf="errorMessage" class="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-xs font-bold text-rose-700 mb-6 flex items-start gap-2">
+      <span class="text-base leading-none">⚠️</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- Readonly Information Section -->
+    <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200/80 mb-6 space-y-3">
+      <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-2">Immutable Fields</h3>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+        <div>
+          <span class="text-slate-400 block font-medium">Item:</span>
+          <span class="font-bold text-slate-800">{{ getItemTitle() }}</span>
+        </div>
+
+        <div>
+          <span class="text-slate-400 block font-medium">Donor / Seller:</span>
+          <span class="font-bold text-slate-800">{{ getDonorName() }}</span>
+        </div>
+
+        <div>
+          <span class="text-slate-400 block font-medium">Receiver:</span>
+          <span class="font-bold text-slate-800">{{ getReceiverName() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form (ngSubmit)="onSubmit()" class="space-y-6">
+      
+      <!-- Status selection field -->
+      <div>
+        <label class="block text-xs font-black text-slate-800 mb-2">
+          New Transaction Status <span class="text-rose-500">*</span>
+        </label>
+        <select 
+          [(ngModel)]="formData.status" 
+          name="status" 
+          required 
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-800 outline-none focus:border-emerald-500 focus:bg-white transition cursor-pointer"
+        >
+          <option value="pending">⏳ Pending</option>
+          <option value="completed">✅ Completed</option>
+          <option value="cancelled">❌ Cancelled</option>
+        </select>
+        <p class="text-[11px] text-slate-400 mt-1">Select the current progress status for this handover</p>
+      </div>
+
+      <!-- Handshake OTP field -->
+      <div>
+        <label class="block text-xs font-black text-slate-800 mb-2">
+          Handshake Verification Code (OTP)
+        </label>
+        <input 
+          type="text" 
+          [(ngModel)]="formData.handshakeOTP" 
+          name="handshakeOTP"
+          placeholder="OTP code (e.g. 123456)" 
+          maxlength="10"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono font-bold text-slate-800 outline-none focus:border-emerald-500 focus:bg-white transition"
+        />
+        <p class="text-[11px] text-slate-400 mt-1">Security code shared between donor and receiver for handover verification</p>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+        <a 
+          [routerLink]="['/transactions', transaction._id]" 
+          class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer"
+        >
+          Cancel
+        </a>
+        <button 
+          type="submit" 
+          [disabled]="isSubmitting"
+          class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition shadow-sm active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span *ngIf="isSubmitting" class="animate-spin text-sm">⏳</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>

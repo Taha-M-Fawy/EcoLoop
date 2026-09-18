@@ -1,1 +1,423 @@
-<p>item-form works!</p>
+<div class="min-h-screen bg-slate-50 py-10 text-slate-800" dir="rtl">
+  <div class="max-w-3xl mx-auto px-4">
+    
+    <!-- Top Step Subtitle & Main Title -->
+    <div class="mb-6 flex flex-col items-start gap-1">
+      <span class="text-xs font-black tracking-widest text-emerald-600 uppercase">
+        إضافة سلعة · الخطوة {{ currentStep }} من 4
+      </span>
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">
+        {{ isEditMode ? 'تعديل بيانات السلعة' : 'امنح أشيائك القديمة حياة جديدة' }}
+      </h1>
+    </div>
+
+    <!-- Stepper Card -->
+    <div class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-10 shadow-sm">
+      
+      <!-- Stepper Header Tabs (1 to 4) -->
+      <div class="grid grid-cols-4 gap-2 sm:gap-3 mb-8 bg-slate-100/80 p-1.5 rounded-2xl">
+        <button 
+          type="button" 
+          (click)="goToStep(1)"
+          [disabled]="currentStep < 1"
+          class="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl font-bold transition text-xs sm:text-sm"
+          [ngClass]="{
+            'bg-emerald-600 text-white shadow-sm': currentStep === 1,
+            'text-slate-600 hover:text-slate-900': currentStep !== 1
+          }"
+        >
+          <span class="text-[10px] opacity-75 font-mono">01</span>
+          <span>التفاصيل</span>
+        </button>
+
+        <button 
+          type="button" 
+          (click)="goToStep(2)"
+          [disabled]="currentStep < 2"
+          class="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl font-bold transition text-xs sm:text-sm"
+          [ngClass]="{
+            'bg-emerald-600 text-white shadow-sm': currentStep === 2,
+            'text-slate-600 hover:text-slate-900': currentStep !== 2
+          }"
+        >
+          <span class="text-[10px] opacity-75 font-mono">02</span>
+          <span>المعاملة</span>
+        </button>
+
+        <button 
+          type="button" 
+          (click)="goToStep(3)"
+          [disabled]="currentStep < 3"
+          class="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl font-bold transition text-xs sm:text-sm"
+          [ngClass]="{
+            'bg-emerald-600 text-white shadow-sm': currentStep === 3,
+            'text-slate-600 hover:text-slate-900': currentStep !== 3
+          }"
+        >
+          <span class="text-[10px] opacity-75 font-mono">03</span>
+          <span>الأمان والصور</span>
+        </button>
+
+        <button 
+          type="button" 
+          (click)="goToStep(4)"
+          [disabled]="currentStep < 4"
+          class="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl font-bold transition text-xs sm:text-sm"
+          [ngClass]="{
+            'bg-emerald-600 text-white shadow-sm': currentStep === 4,
+            'text-slate-600 hover:text-slate-900': currentStep !== 4
+          }"
+        >
+          <span class="text-[10px] opacity-75 font-mono">04</span>
+          <span>الموقع</span>
+        </button>
+      </div>
+
+      <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
+        
+        <!-- STEP 1: التفاصيل الأساسية والحالة -->
+        <div *ngIf="currentStep === 1" class="space-y-6 animate-fadeIn">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">عنوان السلعة *</label>
+            <input 
+              type="text" 
+              formControlName="title" 
+              placeholder="ما الذي تود عرضه؟ (مثال: كتاب حاسبات، جهاز ضغط، لابتوب...)"
+              class="w-full rounded-2xl border px-4 py-3 text-sm outline-none transition"
+              [ngClass]="{
+                'border-rose-500 bg-rose-50/20': itemForm.get('title')?.touched && itemForm.get('title')?.invalid,
+                'border-slate-200 focus:border-emerald-500': !itemForm.get('title')?.touched || itemForm.get('title')?.valid
+              }"
+            />
+            <p *ngIf="itemForm.get('title')?.touched && itemForm.get('title')?.hasError('required')" class="text-xs text-rose-500 mt-1 font-medium">عنوان السلعة مطلوب</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-2">تصنيف السلعة (القسم) *</label>
+              <select 
+                formControlName="categoryId" 
+                (change)="onCategoryChange()"
+                class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 cursor-pointer bg-white"
+              >
+                <option value="">اختر القسم المناسب</option>
+                <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+              </select>
+              <p *ngIf="itemForm.get('categoryId')?.touched && itemForm.get('categoryId')?.hasError('required')" class="text-xs text-rose-500 mt-1 font-medium">يرجى اختيار تصنيف السلعة</p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-2">الكمية المتاحة *</label>
+              <input 
+                type="number" 
+                formControlName="quantity" 
+                min="1" 
+                class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">حالة السلعة *</label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <button 
+                type="button" 
+                *ngFor="let c of conditions" 
+                (click)="selectCondition(c.value)"
+                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition cursor-pointer text-center"
+                [ngClass]="{
+                  'border-emerald-600 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-500/20': itemForm.get('condition')?.value === c.value,
+                  'border-slate-200 bg-white text-slate-600 hover:bg-slate-50': itemForm.get('condition')?.value !== c.value
+                }"
+              >
+                {{ c.label }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">الوصف والملاحظات *</label>
+            <textarea 
+              rows="3" 
+              formControlName="description" 
+              placeholder="اكتب مواصفات السلعة وحالتها بدقة..."
+              class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-emerald-500"
+            ></textarea>
+            <p *ngIf="itemForm.get('description')?.touched && itemForm.get('description')?.hasError('required')" class="text-xs text-rose-500 mt-1 font-medium">الوصف إلزامي</p>
+          </div>
+        </div>
+
+        <!-- STEP 2: نوع المعاملة والبدائل -->
+        <div *ngIf="currentStep === 2" class="space-y-6 animate-fadeIn">
+          <div>
+            <h3 class="text-base font-black text-slate-900 mb-1">كيف تود تمرير هذه السلعة؟</h3>
+            <p class="text-xs text-slate-500 mb-4">اختر النمط المناسب لك سواءً كان لوجه الله أو تبادلاً أو بسعر رمزي</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <!-- تبرع -->
+              <div 
+                (click)="selectType('donation')"
+                class="rounded-2xl border-2 p-5 cursor-pointer transition flex flex-col justify-between"
+                [ngClass]="{
+                  'border-emerald-600 bg-emerald-50/50 shadow-sm': itemForm.get('type')?.value === 'donation',
+                  'border-slate-200 bg-white hover:border-slate-300': itemForm.get('type')?.value !== 'donation'
+                }"
+              >
+                <div>
+                  <h4 class="font-black text-sm text-slate-900">تبرع مجاني</h4>
+                  <p class="text-xs text-slate-500 mt-1 leading-relaxed">منح السلعة دون أي مقابل لجيرانك ومن يحتاجها في المجتمع</p>
+                </div>
+                <span class="mt-4 text-xs font-bold text-emerald-700">مجاني بالكامل</span>
+              </div>
+
+              <!-- تبادل -->
+              <div 
+                (click)="selectType('exchange')"
+                class="rounded-2xl border-2 p-5 cursor-pointer transition flex flex-col justify-between"
+                [ngClass]="{
+                  'border-blue-600 bg-blue-50/50 shadow-sm': itemForm.get('type')?.value === 'exchange',
+                  'border-slate-200 bg-white hover:border-slate-300': itemForm.get('type')?.value !== 'exchange'
+                }"
+              >
+                <div>
+                  <h4 class="font-black text-sm text-slate-900">مقايضة / تبادل</h4>
+                  <p class="text-xs text-slate-500 mt-1 leading-relaxed">تبديل السلعة بغرض آخر مفيد تحتاجه</p>
+                </div>
+                <span class="mt-4 text-xs font-bold text-blue-700">Barter</span>
+              </div>
+
+              <!-- بيع رمزي -->
+              <div 
+                (click)="selectType('sell')"
+                class="rounded-2xl border-2 p-5 cursor-pointer transition flex flex-col justify-between"
+                [ngClass]="{
+                  'border-amber-500 bg-amber-50/50 shadow-sm': itemForm.get('type')?.value === 'sell',
+                  'border-slate-200 bg-white hover:border-slate-300': itemForm.get('type')?.value !== 'sell'
+                }"
+              >
+                <div>
+                  <h4 class="font-black text-sm text-slate-900">بيع رمزي</h4>
+                  <p class="text-xs text-slate-500 mt-1 leading-relaxed">تحديد سعر رمزي ومناسب لإتاحة السلعة بتكلفة مخفضة</p>
+                </div>
+                <span class="mt-4 text-xs font-bold text-amber-600">Low-cost</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- السعر المطلوب (يظهر فقط لو sell) -->
+          <div *ngIf="itemForm.get('type')?.value === 'sell'" class="rounded-2xl border border-amber-200 bg-amber-50/40 p-5 space-y-2 animate-fadeIn">
+            <label class="block text-xs font-bold uppercase text-slate-700">السعر المطلوب (ج.م) *</label>
+            <input 
+              type="number" 
+              formControlName="price" 
+              placeholder="0"
+              min="0"
+              class="w-full sm:w-64 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-amber-500"
+            />
+            <p *ngIf="itemForm.get('price')?.touched && itemForm.get('price')?.hasError('required')" class="text-xs text-rose-500 font-medium">السعر مطلوب عند اختيار البيع</p>
+          </div>
+
+          <!-- التبادل بـ ماذا (يظهر فقط لو exchange) -->
+          <div *ngIf="itemForm.get('type')?.value === 'exchange'" class="rounded-2xl border border-blue-200 bg-blue-50/40 p-5 space-y-2 animate-fadeIn">
+            <label class="block text-xs font-bold uppercase text-slate-700">ما الذي ترغب في مبادلته به؟ *</label>
+            <input 
+              type="text" 
+              formControlName="exchangeWith" 
+              placeholder="مثال: شاشة كمبيوتر، روايات، ملابس شتوية..."
+              class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-blue-500"
+            />
+            <p *ngIf="itemForm.get('exchangeWith')?.touched && itemForm.get('exchangeWith')?.hasError('required')" class="text-xs text-rose-500 font-medium">حقل التبادل مطلوب</p>
+          </div>
+        </div>
+
+        <!-- STEP 3: الأمان الطبي والصور -->
+        <div *ngIf="currentStep === 3" class="space-y-6 animate-fadeIn">
+          
+          <!-- لوحة شروط السلامة الطبية (تظهر فقط لو القسم طبي) -->
+          <div *ngIf="isMedicalCategory" class="rounded-2xl border-2 border-emerald-300 bg-emerald-50/70 p-5 space-y-4">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🛡️</span>
+              <div>
+                <h3 class="text-sm font-black text-emerald-950">شروط سلامة تداول الأدوية والمستلزمات الطبية</h3>
+                <p class="text-xs text-emerald-700">نقبل فقط الشرائط المحكمة غير المنتهية حفاظاً على سلامة المستفيدين</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">تاريخ انتهاء الصلاحية *</label>
+                <input 
+                  type="date" 
+                  formControlName="expiryDate" 
+                  class="w-full rounded-xl border border-emerald-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                />
+                <p *ngIf="itemForm.get('expiryDate')?.touched && itemForm.get('expiryDate')?.hasError('required')" class="text-xs text-rose-600 mt-1 font-medium">تاريخ الصلاحية إلزامي</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">رقم التشغيلة (Batch No) *</label>
+                <input 
+                  type="text" 
+                  formControlName="batchNumber" 
+                  placeholder="مطبوع على طرف الشريط أو العلبة"
+                  class="w-full rounded-xl border border-emerald-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                />
+                <p *ngIf="itemForm.get('batchNumber')?.touched && itemForm.get('batchNumber')?.hasError('required')" class="text-xs text-rose-600 mt-1 font-medium">رقم التشغيلة مطلوب</p>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-emerald-200">
+              <label class="flex items-start gap-2.5 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  formControlName="isControlledSubstanceConfirmed" 
+                  class="mt-1 h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer"
+                />
+                <span class="text-xs font-medium text-slate-700 leading-relaxed">
+                  أقر بأن الدواء في شريط محكم الإغلاق (<strong class="text-emerald-800">Sealed Blister</strong>)، وأنه سليم وخالٍ تماماً من أي مواد مخدرة أو أدوية جدول محظورة.
+                </span>
+              </label>
+              <p *ngIf="itemForm.get('isControlledSubstanceConfirmed')?.touched && itemForm.get('isControlledSubstanceConfirmed')?.invalid" class="text-xs text-rose-600 mt-1 font-medium">
+                يجب الموافقة على إقرار السلامة لنشر الدواء
+              </p>
+            </div>
+          </div>
+
+          <!-- منطقة رفع الصور -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-bold uppercase text-slate-700">صور السلعة *</label>
+              <span class="text-xs text-slate-400">{{ imagePreviews.length }} صور مختارة</span>
+            </div>
+
+            <div 
+              (click)="fileInput.click()" 
+              class="flex flex-col items-center justify-center border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer transition"
+              [ngClass]="{
+                'border-rose-400 bg-rose-50/20': itemForm.get('images')?.touched && itemForm.get('images')?.invalid,
+                'border-slate-300 hover:border-emerald-500 hover:bg-emerald-50/30': !itemForm.get('images')?.touched || itemForm.get('images')?.valid
+              }"
+            >
+              <div class="text-3xl mb-2">📸</div>
+              <p class="text-sm font-bold text-slate-800">اسحب وأفلت الصور هنا أو اضغط للاختيار</p>
+              <p class="text-xs text-slate-400 mt-1">PNG, JPG بحد أقصى 4 صور وحتى 5 ميجابايت للصورة</p>
+            </div>
+
+            <input 
+              #fileInput 
+              type="file" 
+              accept="image/*" 
+              multiple 
+              class="hidden" 
+              (change)="onFileSelected($event)" 
+            />
+
+            <!-- Preview Grid -->
+            <div *ngIf="imagePreviews.length > 0" class="flex flex-wrap gap-3 mt-4">
+              <div *ngFor="let img of imagePreviews; let i = index" class="relative group w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                <img [src]="img" class="w-full h-full object-cover" alt="معاينة" />
+                <button 
+                  type="button" 
+                  (click)="removeImage(i)" 
+                  class="absolute top-1 left-1 bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow hover:bg-rose-700 transition"
+                  title="حذف"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <p *ngIf="imageError" class="text-xs text-rose-500 mt-2 font-medium">{{ imageError }}</p>
+            <p *ngIf="itemForm.get('images')?.touched && itemForm.get('images')?.hasError('required')" class="text-xs text-rose-500 mt-2 font-medium">
+              يجب رفع صورة واحدة على الأقل
+            </p>
+          </div>
+        </div>
+
+        <!-- STEP 4: الموقع الجغرافي والنشر النهائي -->
+        <div *ngIf="currentStep === 4" class="space-y-6 animate-fadeIn">
+          <div>
+            <h3 class="text-base font-black text-slate-900 mb-1">أين تتواجد السلعة؟</h3>
+            <p class="text-xs text-slate-500 mb-4">حدد المحافظة والمركز لتسهيل تسليم السلعة وتبادلها يداً بيد</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-2">المحافظة *</label>
+              <select 
+                formControlName="governorate" 
+                (change)="onGovChange()"
+                class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 cursor-pointer bg-white"
+              >
+                <option value="">اختر المحافظة</option>
+                <option *ngFor="let gov of governorates" [value]="gov">{{ gov }}</option>
+              </select>
+              <p *ngIf="itemForm.get('governorate')?.touched && itemForm.get('governorate')?.hasError('required')" class="text-xs text-rose-500 mt-1 font-medium">المحافظة مطلوبة</p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-2">المركز / المدينة *</label>
+              <select 
+                formControlName="city" 
+                class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 disabled:bg-slate-100 disabled:opacity-60 cursor-pointer bg-white"
+              >
+                <option value="">{{ itemForm.get('governorate')?.value ? 'اختر المركز أو المدينة' : 'اختر المحافظة أولاً' }}</option>
+                <option *ngFor="let c of availableCities" [value]="c">{{ c }}</option>
+              </select>
+              <p *ngIf="itemForm.get('city')?.touched && itemForm.get('city')?.hasError('required')" class="text-xs text-rose-500 mt-1 font-medium">المركز أو المدينة مطلوب</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls Footer (Navigation & Submit) -->
+        <div class="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between">
+          <div>
+            <button 
+              type="button" 
+              *ngIf="currentStep > 1" 
+              (click)="prevStep()"
+              class="rounded-xl px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+            >
+              السابق
+            </button>
+
+            <button 
+              type="button" 
+              *ngIf="currentStep === 1" 
+              (click)="cancel()"
+              class="rounded-xl px-5 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 transition cursor-pointer"
+            >
+              إلغاء
+            </button>
+          </div>
+
+          <div>
+            <button 
+              type="button" 
+              *ngIf="currentStep < 4" 
+              (click)="nextStep()"
+              class="rounded-xl bg-emerald-600 px-7 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 transition cursor-pointer"
+            >
+              المتابعة
+            </button>
+
+            <button 
+              type="submit" 
+              *ngIf="currentStep === 4"
+              [disabled]="submitting"
+              class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white shadow hover:bg-emerald-700 transition disabled:opacity-60 cursor-pointer"
+            >
+              <svg *ngIf="submitting" class="h-4 w-4 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <span>{{ submitting ? 'جاري النشر...' : isEditMode ? 'حفظ التعديلات' : 'نشر السلعة الآن' }}</span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>

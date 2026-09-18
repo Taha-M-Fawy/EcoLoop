@@ -1,0 +1,240 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  <!-- Back navigation bar -->
+  <div class="mb-6 flex items-center justify-between">
+    <a 
+      routerLink="/transactions" 
+      class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-emerald-600 bg-white border border-slate-200 px-4 py-2 rounded-xl transition cursor-pointer"
+    >
+      <span>←</span>
+      <span>Back to Transactions List</span>
+    </a>
+
+    <div *ngIf="transaction" class="flex items-center gap-2">
+      <a 
+        [routerLink]="['/transactions/edit', transaction._id]" 
+        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer flex items-center gap-1.5"
+      >
+        <span>✏️</span>
+        <span>Edit Transaction</span>
+      </a>
+
+      <button 
+        type="button"
+        (click)="confirmDelete()" 
+        class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl transition cursor-pointer flex items-center gap-1.5"
+      >
+        <span>🗑️</span>
+        <span>Delete</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="py-20 text-center bg-white border border-slate-200 rounded-3xl shadow-xs">
+    <div class="inline-block w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <p class="text-xs font-bold text-slate-500">Loading transaction details...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!loading && errorMessage" class="bg-rose-50 border border-rose-200 rounded-3xl p-8 text-center">
+    <div class="text-4xl mb-3">⚠️</div>
+    <h3 class="text-base font-bold text-rose-800 mb-1">Failed to Fetch Data</h3>
+    <p class="text-xs text-rose-600 mb-6">{{ errorMessage }}</p>
+    <a 
+      routerLink="/transactions" 
+      class="inline-block bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-6 py-2.5 rounded-xl transition cursor-pointer"
+    >
+      Back to List
+    </a>
+  </div>
+
+  <!-- Details Content -->
+  <div *ngIf="!loading && transaction" class="space-y-6">
+    
+    <!-- Top Card: Status & Header Info -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+        <div>
+          <span class="text-xs font-bold text-slate-400 block mb-1">Transaction Details ID</span>
+          <h1 class="text-lg font-mono font-black text-slate-900 inline-block">{{ transaction._id }}</h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span [class]="'inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black border ' + getStatusBadgeClass(transaction.status)">
+            {{ getStatusLabel(transaction.status) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Dates Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 text-xs">
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-100">
+          <span class="text-slate-400 block font-medium mb-0.5">Created Date:</span>
+          <span class="font-bold text-slate-800">{{ transaction.createdAt | date:'medium' }}</span>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-100">
+          <span class="text-slate-400 block font-medium mb-0.5">Last Updated:</span>
+          <span class="font-bold text-slate-800">{{ transaction.updatedAt | date:'medium' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item Info Card -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
+      <h2 class="text-sm font-black text-slate-800 mb-4 flex items-center gap-2">
+        <span>📦</span>
+        <span>Associated Item Information</span>
+      </h2>
+
+      <div class="flex flex-col sm:flex-row items-start gap-4">
+        <!-- Item Image -->
+        <div class="w-24 h-24 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center text-3xl text-slate-400">
+          <img 
+            *ngIf="getItemObject()?.images && getItemObject()!.images!.length > 0" 
+            [src]="getItemObject()!.images![0]" 
+            [alt]="getItemObject()?.title" 
+            class="w-full h-full object-cover"
+          />
+          <span *ngIf="!getItemObject()?.images || getItemObject()!.images!.length === 0">🎁</span>
+        </div>
+
+        <!-- Details -->
+        <div class="space-y-2 flex-1">
+          <h3 class="text-base font-black text-slate-900">
+            {{ getItemObject()?.title || ('Item #' + (transaction.itemId)) }}
+          </h3>
+
+          <p *ngIf="getItemObject()?.description" class="text-xs text-slate-600 line-clamp-2">
+            {{ getItemObject()?.description }}
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3 text-xs pt-1">
+            <span *ngIf="getItemObject()?.type" class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-xl font-bold border border-emerald-100">
+              Type: {{ getItemObject()?.type }}
+            </span>
+            <span *ngIf="getItemObject()?.condition" class="bg-slate-100 text-slate-700 px-3 py-1 rounded-xl font-bold border border-slate-200">
+              Condition: {{ getItemObject()?.condition }}
+            </span>
+            <span *ngIf="getItemObject()?.price" class="bg-amber-50 text-amber-800 px-3 py-1 rounded-xl font-bold border border-amber-100">
+              Price: {{ getItemObject()?.price }} EGP
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parties Grid (Donor/Seller & Receiver) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Donor/Seller Card -->
+      <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-black">
+            👤
+          </div>
+          <div>
+            <h3 class="text-xs font-extrabold text-emerald-700 uppercase tracking-wider">Party 1</h3>
+            <p class="text-sm font-black text-slate-900">Donor / Seller</p>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-100">
+          <div>
+            <span class="text-slate-400 block font-medium">Full Name:</span>
+            <span class="font-bold text-slate-800 text-sm">{{ getDonorObject()?.name || 'User #' + transaction.donorOrSellerId }}</span>
+          </div>
+          <div *ngIf="getDonorObject()?.email">
+            <span class="text-slate-400 block font-medium">Email:</span>
+            <span class="font-mono text-slate-700 inline-block">{{ getDonorObject()?.email }}</span>
+          </div>
+          <div *ngIf="getDonorObject()?.phone">
+            <span class="text-slate-400 block font-medium">Phone:</span>
+            <span class="font-bold text-slate-800 inline-block">{{ getDonorObject()?.phone }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Receiver Card -->
+      <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center text-lg font-black">
+            🤝
+          </div>
+          <div>
+            <h3 class="text-xs font-extrabold text-teal-700 uppercase tracking-wider">Party 2</h3>
+            <p class="text-sm font-black text-slate-900">Receiver / Buyer</p>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-100">
+          <div>
+            <span class="text-slate-400 block font-medium">Full Name:</span>
+            <span class="font-bold text-slate-800 text-sm">{{ getReceiverObject()?.name || 'User #' + transaction.receiverId }}</span>
+          </div>
+          <div *ngIf="getReceiverObject()?.email">
+            <span class="text-slate-400 block font-medium">Email:</span>
+            <span class="font-mono text-slate-700 inline-block">{{ getReceiverObject()?.email }}</span>
+          </div>
+          <div *ngIf="getReceiverObject()?.phone">
+            <span class="text-slate-400 block font-medium">Phone:</span>
+            <span class="font-bold text-slate-800 inline-block">{{ getReceiverObject()?.phone }}</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Request Info (if present) -->
+    <div *ngIf="getRequestObject()" class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
+      <h3 class="text-xs font-extrabold text-slate-400 uppercase mb-2">Associated Request</h3>
+      <div class="flex items-center justify-between text-xs bg-slate-50 p-4 rounded-2xl border border-slate-100">
+        <div>
+          <span class="font-bold text-slate-800">Request ID: </span>
+          <span class="font-mono text-slate-600 inline-block">{{ getRequestObject()?._id }}</span>
+        </div>
+        <div *ngIf="getRequestObject()?.status" class="bg-slate-200 text-slate-700 px-3 py-1 rounded-xl font-bold">
+          {{ getRequestObject()?.status }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Embedded Secure Exchange / OTP Component -->
+    <app-secure-exchange 
+      [transaction]="transaction" 
+      (statusUpdated)="onStatusUpdated($event)"
+    ></app-secure-exchange>
+
+  </div>
+
+  <!-- Delete Modal -->
+  <div *ngIf="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl mx-auto mb-3">
+        ⚠️
+      </div>
+      <h3 class="text-base font-black text-slate-900 mb-1">Delete Transaction</h3>
+      <p class="text-xs text-slate-500 mb-6">Are you sure you want to delete this transaction? This action cannot be undone.</p>
+      
+      <div class="flex items-center justify-center gap-3">
+        <button 
+          (click)="cancelDelete()" 
+          [disabled]="isDeleting"
+          class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button 
+          (click)="executeDelete()" 
+          [disabled]="isDeleting"
+          class="flex-1 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span *ngIf="isDeleting" class="animate-spin text-sm">⏳</span>
+          <span>Confirm Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

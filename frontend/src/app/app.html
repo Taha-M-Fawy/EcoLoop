@@ -1,1 +1,21 @@
+<app-navbar></app-navbar>
 <router-outlet></router-outlet>
+<!-- Toast Notifications Container -->
+<div class="fixed bottom-5 left-5 z-50 flex flex-col gap-2 pointer-events-none" dir="rtl">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      class="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-sm font-semibold transition-all duration-300 animate-slide-up"
+      [ngClass]="{
+        'bg-emerald-600 text-white border-emerald-500': toast.type === 'success',
+        'bg-rose-600 text-white border-rose-500': toast.type === 'error',
+        'bg-slate-800 text-white border-slate-700': toast.type === 'info'
+      }"
+    >
+      <span>{{ toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ' }}</span>
+      <span>{{ toast.message }}</span>
+      <button (click)="toastService.remove(toast.id)" class="mr-2 text-white/80 hover:text-white text-xs">✕</button>
+    </div>
+  }
+</div>
+
+<app-footer></app-footer>

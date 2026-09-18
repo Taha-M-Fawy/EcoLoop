@@ -1,1 +1,166 @@
-<p>home works!</p>
+<div class="min-h-screen bg-slate-50 text-slate-800" dir="rtl">
+
+  <!-- 1. Hero Section (التصميم الفاتح الإنساني) -->
+  <section class="relative overflow-hidden bg-gradient-to-b from-[#e8f5f0] via-[#f1f9f6] to-slate-50 py-12 lg:py-20 px-4 sm:px-6 border-b border-slate-200/70">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+      
+      <!-- العمود الأيمن: المحتوى النصي والإجراءات -->
+      <div class="lg:col-span-6 space-y-6 text-right">
+        
+        <div class="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-white/90 px-4 py-1.5 text-xs font-bold text-emerald-800 shadow-xs">
+          <span>✨</span>
+          <span>تبادل موثوق للمجتمعات المحلية</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight sm:leading-tight">
+          امنح ما تستطيع، <br />
+          واعثر على ما تحتاجه
+        </h1>
+
+        <p class="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
+          حافظ على تداول الأشياء المفيدة بين جيران موثوقين. اكتشف احتياجاتك، وقدم ما لم تعد تحتاجه، وتبادل بأمان مع تأكيد التسليم المجتمعي.
+        </p>
+
+        <!-- أزرار الإجراءات الأساسية -->
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <a 
+            routerLink="/items" 
+            class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 px-6 py-3.5 text-sm font-bold text-white shadow-sm hover:shadow transition active:scale-95 cursor-pointer"
+          >
+            <span>استكشف السوق</span>
+            <span class="text-base">&larr;</span>
+          </a>
+
+          <a 
+            routerLink="/items/new" 
+            class="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-emerald-600/40 bg-white hover:bg-emerald-50/50 px-6 py-3.5 text-sm font-bold text-emerald-800 transition active:scale-95 cursor-pointer"
+          >
+            <span>اطلب احتياجاً عاجلاً</span>
+          </a>
+        </div>
+
+        <!-- إحصائيات سريعة أسفل الأزرار -->
+        <div class="pt-4 flex items-center gap-8 border-t border-slate-200/80">
+          <div>
+            <p class="text-2xl font-black text-slate-900">+12,480</p>
+            <p class="text-xs font-bold text-slate-500 mt-0.5">تبادلات مجتمعية</p>
+          </div>
+          <div>
+            <p class="text-2xl font-black text-emerald-700">3,219</p>
+            <p class="text-xs font-bold text-slate-500 mt-0.5">أشخاص تم دعمهم</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- العمود الأيسر: الصورة والشارات التوضيحية -->
+      <div class="lg:col-span-6 flex justify-center">
+        <div class="relative w-full max-w-md lg:max-w-lg">
+          
+          <!-- شارة فحص الأمان العلوي -->
+          <div class="absolute -top-3 -right-3 z-10 rounded-2xl bg-white/95 backdrop-blur px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-md border border-slate-100 flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+            <span>Blister-Sealed Meds 100%</span>
+          </div>
+
+          <!-- الحاوية الأساسية للصورة -->
+          <div class="overflow-hidden rounded-3xl border-4 border-white bg-white shadow-xl aspect-4/3 flex items-center justify-center">
+            <img 
+              src="ecoloop-hero.png" 
+              alt="تبادل وتعاون مجتمعي عبر إيكولوب" 
+              class="w-full h-full object-cover"
+            />
+          </div>
+
+          <!-- شارة التسليم السفلي -->
+          <div class="absolute -bottom-3 -left-3 z-10 rounded-2xl bg-white/95 backdrop-blur px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-md border border-slate-100 flex items-center gap-1.5">
+            <span>🤝</span>
+            <span>OTP Safe Handshakes</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 2. Dynamic Categories Grid -->
+  <section class="max-w-6xl mx-auto px-4 py-14">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <span class="text-xs font-bold uppercase text-emerald-600">تصفح حسب الغرض</span>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-1">اعثر على غرضك المفيد التالي</h2>
+      </div>
+      <a routerLink="/items" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
+        عرض كل السلع &larr;
+      </a>
+    </div>
+
+    <!-- مؤشر تحميل الأقسام -->
+    <div *ngIf="loadingCategories" class="py-8 text-center text-xs font-bold text-slate-400">
+      جاري تحميل التصنيفات...
+    </div>
+
+    <!-- شبكة الأقسام المستدعاة ديناميكياً من MongoDB -->
+    <div *ngIf="!loadingCategories && categories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div 
+        *ngFor="let cat of categories"
+        [routerLink]="['/items']" 
+        [queryParams]="{ categoryId: cat._id }"
+        class="group p-5 bg-white border border-slate-200/80 rounded-2xl hover:border-emerald-500 hover:shadow-md transition cursor-pointer flex flex-col justify-between"
+      >
+        <div class="space-y-2">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-emerald-50 transition">
+            {{ getCategoryIcon(cat.name) }}
+          </div>
+          <h3 class="text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition">
+            {{ cat.name }}
+          </h3>
+          <p class="text-xs text-slate-400 line-clamp-2">
+            {{ cat.name }}
+          </p>
+        </div>
+        <span class="text-[11px] font-bold text-emerald-600 mt-4 block">تصفح المعروضات &larr;</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Dynamic Latest Items (Reusable Component) -->
+  <section class="bg-slate-100/70 border-t border-slate-200 py-14">
+    <div class="max-w-6xl mx-auto px-4">
+      
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900">أحدث المعروضات</h2>
+          <p class="text-xs text-slate-500 mt-1">سلع ومستلزمات أضيفت مؤخراً في مجتمعك</p>
+        </div>
+        <a routerLink="/items" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+          مشاهدة الكل
+        </a>
+      </div>
+
+      <!-- حالة التحميل -->
+      <div *ngIf="loadingLatest" class="py-12 text-center text-slate-400 text-xs font-bold">
+        جاري تحميل أحدث السلع...
+      </div>
+
+      <!-- كروت السلع باستخدام ItemCardComponent -->
+      <div *ngIf="!loadingLatest && latestItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <app-item-card 
+          *ngFor="let item of latestItems" 
+          [item]="item">
+        </app-item-card>
+      </div>
+
+      <!-- في حالة عدم وجود سلع -->
+      <div *ngIf="!loadingLatest && latestItems.length === 0" class="py-12 text-center bg-white rounded-2xl border border-slate-200 p-8">
+        <p class="text-slate-500 text-sm font-medium">لا توجد معروضات حالياً، كن أول من يشارك!</p>
+        <a routerLink="/items/new" class="inline-block mt-3 px-5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold cursor-pointer">
+          أضف سلعة الآن
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+</div>

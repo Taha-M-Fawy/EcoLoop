@@ -1,0 +1,219 @@
+<div class="min-h-screen bg-slate-50/70 py-8 text-slate-800" dir="rtl">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    
+    <!-- شريط التحميل (Spinner) -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+      <div class="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-600"></div>
+      <p class="text-sm font-semibold text-slate-500">جاري تحميل تفاصيل السلعة...</p>
+    </div>
+
+    <!-- تفاصيل السلعة بعد التحميل -->
+    <div *ngIf="!loading && item">
+      
+      <!-- شريط العنوان والرجوع العلوي -->
+      <div class="flex items-center justify-between mb-6">
+        <button 
+          (click)="goBack()" 
+          class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-emerald-600 transition cursor-pointer"
+        >
+          <span class="text-base">&rarr;</span>
+          <span>العودة إلى قائمة المعروضات</span>
+        </button>
+
+        <span class="text-xs font-black tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+          تفاصيل العرض
+        </span>
+      </div>
+
+      <!-- شبكة العرض (معرض الصور يميناً والتفاصيل يساراً) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- العمود الأول (يمين): معرض الصور التفاعلي (7 أعمدة) -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          
+          <!-- الصورة الرئيسية الكبيرة -->
+          <div class="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <img 
+              #mainImg
+              [src]="selectedImage || fallbackImg" 
+              [alt]="item.title"
+              (error)="mainImg.src = fallbackImg"
+              class="h-full w-full object-cover transition-all duration-300"
+            />
+          </div>
+
+          <!-- شبكة الصور المصغرة (Thumbnails) -->
+          <div *ngIf="item.images && item.images.length > 1" class="grid grid-cols-4 sm:grid-cols-5 gap-3">
+            <button 
+              *ngFor="let img of item.images" 
+              type="button"
+              (click)="selectedImage = img"
+              class="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border-2 transition-all cursor-pointer bg-white shadow-xs hover:opacity-90"
+              [ngClass]="selectedImage === img ? 'border-emerald-600 ring-2 ring-emerald-600/30' : 'border-slate-200 opacity-70 hover:opacity-100'"
+            >
+              <img [src]="img" class="h-full w-full object-cover" [alt]="item.title" />
+            </button>
+          </div>
+
+        </div>
+
+        <!-- العمود الثاني (يسار): كارت البيانات، صندوق المقايضة، وأزرار التواصل (5 أعمدة) -->
+        <div class="lg:col-span-5 flex flex-col gap-5">
+          
+          <!-- الكارت الأساسي للسلعة -->
+          <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            
+            <!-- الموقع والنوع -->
+            <div class="flex items-center justify-between gap-2 mb-4">
+              <span class="text-xs font-medium text-slate-500">
+                📍 {{ item.governorate }} - {{ item.city }}
+              </span>
+
+              <span 
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold"
+                [ngClass]="{
+                  'bg-emerald-100 text-emerald-800': item.type === 'donation',
+                  'bg-sky-100 text-sky-800': item.type === 'exchange',
+                  'bg-amber-100 text-amber-800': item.type === 'sell'
+                }"
+              >
+                {{ item.type === 'donation' ? '🎁 تبرع مجاني' : item.type === 'exchange' ? '🔄 مقايضة / تبادل' : '🏷️ بيع رمزي' }}
+              </span>
+            </div>
+
+            <!-- العنوان والحالة -->
+            <div class="mb-4">
+              <span *ngIf="item.condition" class="inline-block rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600 mb-2">
+                {{ getConditionLabel(item.condition) }}
+              </span>
+              <h1 class="text-2xl font-black text-slate-900 leading-tight">
+                {{ item.title }}
+              </h1>
+              <p *ngIf="item.createdAt" class="text-[11px] text-slate-400 mt-1">
+                نُشر {{ item.createdAt | date:'mediumDate' }}
+              </p>
+            </div>
+
+            <!-- السعر للبيع -->
+            <div *ngIf="item.type === 'sell' && item.price" class="mb-4 flex items-baseline gap-1.5">
+              <span class="text-3xl font-black text-emerald-600">{{ item.price }}</span>
+              <span class="text-sm font-bold text-slate-500">ج.م</span>
+            </div>
+
+            <!-- معلومات إضافية (الكمية) -->
+            <div class="mb-4 rounded-xl bg-slate-50 border border-slate-100 p-3 flex justify-between items-center text-xs">
+              <span class="text-slate-500 font-medium">الكمية المتاحة</span>
+              <span class="font-bold text-slate-800">{{ item.quantity || 1 }} وحدة</span>
+            </div>
+
+            <!-- فحص الأمان الطبي إن وجد -->
+            <div *ngIf="item.expiryDate || item.batchNumber" class="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 space-y-2">
+              <div class="flex items-center gap-2 text-xs font-bold text-emerald-900">
+                <span>🛡️</span>
+                <span>فحص الأمان والمطابقة الدوائية</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs text-slate-700 pt-1 border-t border-emerald-200/60">
+                <div>الصلاحية: <strong class="text-emerald-800">{{ item.expiryDate | date:'MM/yyyy' }}</strong></div>
+                <div>رقم التشغيلة: <strong class="text-slate-800">{{ item.batchNumber || 'غير متوفر' }}</strong></div>
+              </div>
+            </div>
+
+            <!-- الوصف التفصيلي -->
+            <div class="mb-5">
+              <h2 class="text-xs font-bold uppercase text-slate-400 mb-1.5">الوصف</h2>
+              <p class="text-xs leading-relaxed text-slate-600 whitespace-pre-line bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
+                {{ item.description || 'لا يوجد وصف تفصيلي إضافي متاح لهذه السلعة.' }}
+              </p>
+            </div>
+
+            <!-- صندوق المقايضة (Barter Box) -->
+            <div *ngIf="item.type === 'exchange'" class="rounded-2xl border border-sky-200 bg-sky-50/60 p-4 mb-6">
+              <span class="text-[11px] font-bold text-sky-700 uppercase tracking-wide block mb-1">
+                صندوق المقايضة (Barter Box)
+              </span>
+              <p class="text-xs font-medium text-slate-800">
+                يرغب المالك بالتبادل مع: <strong class="text-sky-900">{{ item.exchangeWith || 'أي بديل مناسب ومفيد' }}</strong>
+              </p>
+            </div>
+
+            <!-- أزرار الإجراءات -->
+            <div>
+              <!-- في حال كان المستخدم صاحب السلعة -->
+              <div *ngIf="isOwner" class="grid grid-cols-2 gap-3">
+                <button 
+                  type="button"
+                  (click)="editItem()"
+                  class="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer text-center"
+                >
+                  ✏️ تعديل السلعة
+                </button>
+                <button 
+                  type="button"
+                  (click)="deleteItem()"
+                  class="w-full py-3 px-4 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition cursor-pointer text-center"
+                >
+                  🗑️ حذف
+                </button>
+              </div>
+
+              <!-- في حال كان المستخدم يتصفح السلعة -->
+              <button 
+                *ngIf="!isOwner"
+                type="button"
+                (click)="onRequestItem()"
+                class="w-full py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold text-sm shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>🤝</span>
+                <span>
+                  {{ item.type === 'exchange' ? 'بدء المقايضة والتواصل' : (item.type === 'donation' ? 'طلب استلام السلعة' : 'طلب الشراء والتواصل') }}
+                </span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- كارت موثوقية المالك (ديناميكي بالكامل) -->
+          <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+              
+              <!-- صورة المالك الشخصية أو الحرف الأول -->
+              <div *ngIf="item.ownerId?.avatar; else avatarLetter" class="h-12 w-12 shrink-0 rounded-2xl overflow-hidden border border-slate-200">
+                <img [src]="item.ownerId.avatar" [alt]="item.ownerId?.name" class="h-full w-full object-cover" />
+              </div>
+              <ng-template #avatarLetter>
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-sm font-black text-emerald-800 border border-emerald-200">
+                  {{ ((item.ownerId?.name || item.ownerId?.username || 'م')[0]) | uppercase }}
+                </div>
+              </ng-template>
+
+              <div>
+                <!-- اسم المالك وعلامة التوثيق -->
+                <div class="flex items-center gap-1.5">
+                  <span class="text-sm font-bold text-slate-900">
+                    {{ item.ownerId?.name || item.ownerId?.username || 'صاحب العرض' }}
+                  </span>
+                  <span *ngIf="item.ownerId?.isVerified !== false" class="text-xs text-emerald-600 font-bold" title="حساب موثق">✓</span>
+                </div>
+                
+                <!-- التقييم وعدد المعاملات المكتملة -->
+                <p class="text-xs text-slate-500 mt-0.5">
+                  <span>تقييم {{ item.ownerId?.rating ? (item.ownerId.rating | number:'1.1-1') : '5.0' }}</span>
+                  <span class="mx-1">·</span>
+                  <span>{{ item.ownerId?.completedExchanges || 0 }} معاملة ناجحة</span>
+                </p>
+              </div>
+            </div>
+
+            <span class="rounded-xl bg-slate-100 px-3 py-1.5 text-[11px] font-bold text-slate-600">
+              OWNER TRUST
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

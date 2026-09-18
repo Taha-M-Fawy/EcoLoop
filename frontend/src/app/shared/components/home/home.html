@@ -1,6 +1,6 @@
 <div class="min-h-screen bg-slate-50 text-slate-800" dir="rtl">
 
-  <!-- 1. Hero Section (التصميم الفاتح الإنساني) -->
+  <!-- 1. Hero Section -->
   <section class="relative overflow-hidden bg-gradient-to-b from-[#e8f5f0] via-[#f1f9f6] to-slate-50 py-12 lg:py-20 px-4 sm:px-6 border-b border-slate-200/70">
     <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
       
@@ -38,7 +38,7 @@
           </a>
         </div>
 
-        <!-- إحصائيات سريعة أسفل الأزرار -->
+        <!-- إحصائيات سريعة -->
         <div class="pt-4 flex items-center gap-8 border-t border-slate-200/80">
           <div>
             <p class="text-2xl font-black text-slate-900">+12,480</p>
@@ -52,11 +52,9 @@
 
       </div>
 
-      <!-- العمود الأيسر: الصورة والشارات التوضيحية -->
+      <!-- العمود الأيسر: الصورة -->
       <div class="lg:col-span-6 flex justify-center">
         <div class="relative w-full max-w-md lg:max-w-lg">
-                
-          <!-- الحاوية الأساسية للصورة -->
           <div class="overflow-hidden rounded-3xl border-4 border-white bg-white shadow-xl aspect-4/3 flex items-center justify-center">
             <img 
               src="ecoloop-hero.png" 
@@ -64,18 +62,17 @@
               class="w-full h-full object-cover"
             />
           </div>
-
         </div>
       </div>
 
     </div>
   </section>
 
-  <!-- 2. Dynamic Categories Grid -->
+  <!-- 2. Dynamic Categories Grid (SVG Icons نظيفة) -->
   <section class="max-w-6xl mx-auto px-4 py-14">
     <div class="flex items-center justify-between mb-8">
       <div>
-        <span class="text-xs font-bold uppercase text-emerald-600">تصفح حسب الغرض</span>
+        <span class="text-xs font-bold uppercase text-emerald-600 tracking-wider">تصفح حسب الغرض</span>
         <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-1">اعثر على غرضك المفيد التالي</h2>
       </div>
       <a routerLink="/items" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
@@ -83,12 +80,12 @@
       </a>
     </div>
 
-    <!-- مؤشر تحميل الأقسام -->
+    <!-- حالة التحميل -->
     <div *ngIf="loadingCategories" class="py-8 text-center text-xs font-bold text-slate-400">
       جاري تحميل التصنيفات...
     </div>
 
-    <!-- شبكة الأقسام المستدعاة ديناميكياً من MongoDB -->
+    <!-- شبكة الأقسام -->
     <div *ngIf="!loadingCategories && categories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         *ngFor="let cat of categories"
@@ -96,23 +93,41 @@
         [queryParams]="{ categoryId: cat._id }"
         class="group p-5 bg-white border border-slate-200/80 rounded-2xl hover:border-emerald-500 hover:shadow-md transition cursor-pointer flex flex-col justify-between"
       >
-        <div class="space-y-2">
-          <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-emerald-50 transition">
-            {{ getCategoryIcon(cat.name) }}
+        <div class="space-y-3">
+          <!-- أيقونة الـ SVG الهندسية المخصصة -->
+          <div 
+            [ngClass]="getCategoryMeta(cat.name).bgClass"
+            class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              class="w-6 h-6" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor" 
+              stroke-width="1.8"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getCategoryMeta(cat.name).path" />
+            </svg>
           </div>
+
           <h3 class="text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition">
             {{ cat.name }}
           </h3>
-          <p class="text-xs text-slate-400 line-clamp-2">
-            {{ cat.name }}
+          <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+            استعرض كافة المعروضات والطلبات المتاحة في قسم {{ cat.name }}.
           </p>
         </div>
-        <span class="text-[11px] font-bold text-emerald-600 mt-4 block">تصفح المعروضات &larr;</span>
+
+        <span class="text-[11px] font-bold text-emerald-600 mt-4 flex items-center gap-1">
+          <span>تصفح المعروضات</span>
+          <span class="transition-transform group-hover:-translate-x-1">&larr;</span>
+        </span>
       </div>
     </div>
   </section>
 
-  <!-- 3. Dynamic Latest Items (Reusable Component) -->
+  <!-- 3. Dynamic Latest Items -->
   <section class="bg-slate-100/70 border-t border-slate-200 py-14">
     <div class="max-w-6xl mx-auto px-4">
       
@@ -131,7 +146,7 @@
         جاري تحميل أحدث السلع...
       </div>
 
-      <!-- كروت السلع باستخدام ItemCardComponent -->
+      <!-- كروت السلع -->
       <div *ngIf="!loadingLatest && latestItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <app-item-card 
           *ngFor="let item of latestItems" 

@@ -21,6 +21,14 @@ const login = async (req, res, next) => {
   }
 };
 
+const logout = async (req, res, next) => {
+  try {
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getUsers = async (req, res, next) => {
   try {
     const users = await userService.fetchAllUsers();
@@ -63,6 +71,7 @@ const deleteUser = async (req, res, next) => {
 module.exports = {
   register,
   login,
+  logout,
   getUsers,
   getUserById,
   updateUser,

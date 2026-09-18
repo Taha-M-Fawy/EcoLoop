@@ -11,9 +11,10 @@ const generateToken = (id, role) => {
 };
 
 const registerUser = async (userData) => {
-  const { username, email, password, role } = userData;
+  const { username, email, password } = userData;
 
   const userExists = await User.findOne({ email });
+
   if (userExists) {
     throw new Error('البريد الإلكتروني مستخدم بالفعل');
   }
@@ -25,7 +26,7 @@ const registerUser = async (userData) => {
     username,
     email,
     password: hashedPassword,
-    role: role || 'user'
+    role: 'user'
   });
 
   return {
@@ -39,11 +40,13 @@ const registerUser = async (userData) => {
 
 const loginUser = async (email, password) => {
   const user = await User.findOne({ email });
+
   if (!user) {
     throw new Error('بيانات الدخول غير صحيحة');
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
+
   if (!isMatch) {
     throw new Error('بيانات الدخول غير صحيحة');
   }

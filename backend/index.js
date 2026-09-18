@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const { connectDB } = require('./config/db.config');
 const { PORT } = require('./config/env.config');
 
@@ -15,6 +16,10 @@ const errorHandler = require('./middlewares/errorHandler');
 const app = express();
 
 //*--- GLOBAL MIDDLEWARES ---*//
+app.use(cors({
+  origin: 'http://localhost:4200'
+}));
+
 app.use(express.json());
 
 //*--- API ROUTES ---*//

@@ -1,0 +1,146 @@
+<div class="dashboard">
+
+  <aside class="sidebar">
+
+    <div class="logo">
+      Eco<span>Loop</span>
+    </div>
+
+    <nav>
+      <a routerLink="/admin-dashboard">الرئيسية</a>
+      <a routerLink="/users">المستخدمون</a>
+      <a routerLink="/items">العناصر</a>
+      <a routerLink="/categories">التصنيفات</a>
+      <a routerLink="/reviews">التقييمات</a>
+      <a routerLink="/notifications">الإشعارات</a>
+    </nav>
+
+    <button (click)="logout()">تسجيل الخروج</button>
+
+  </aside>
+
+  <main class="content">
+
+    <div class="header">
+
+      <div>
+        <span>لوحة تحكم ECLOOP</span>
+        <h1>لوحة التحكم</h1>
+        <p>إدارة ومتابعة منصة EcoLoop</p>
+      </div>
+
+      <div class="admin-info">
+        مدير النظام
+      </div>
+
+    </div>
+
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-title">المستخدمون</div>
+        <strong>{{ usersCount }}</strong>
+        <p>إجمالي المستخدمين المسجلين</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">العناصر</div>
+        <strong>{{ itemsCount }}</strong>
+        <p>العناصر المتاحة على المنصة</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">التصنيفات</div>
+        <strong>{{ categoriesCount }}</strong>
+        <p>إجمالي التصنيفات</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">التقييمات</div>
+        <strong>{{ reviewsCount }}</strong>
+        <p>إجمالي التقييمات</p>
+      </div>
+
+    </div>
+
+    <div class="main-grid">
+
+      <section class="section">
+
+        <div class="section-header">
+          <h2>ملخص النشاط</h2>
+        </div>
+
+        <div class="activity">
+
+          <div class="activity-icon">م</div>
+
+          <div class="activity-text">
+            <strong>المستخدمون</strong>
+            <span>{{ usersCount }} مستخدم مسجل</span>
+          </div>
+
+        </div>
+
+        <div class="activity">
+
+          <div class="activity-icon">ع</div>
+
+          <div class="activity-text">
+            <strong>العناصر</strong>
+            <span>{{ itemsCount }} عنصر متاح</span>
+          </div>
+
+        </div>
+
+        <div class="activity">
+
+          <div class="activity-icon">ت</div>
+
+          <div class="activity-text">
+            <strong>التصنيفات</strong>
+            <span>{{ categoriesCount }} تصنيف</span>
+          </div>
+
+        </div>
+
+        <div class="activity">
+
+          <div class="activity-icon">ق</div>
+
+          <div class="activity-text">
+            <strong>التقييمات</strong>
+            <span>{{ reviewsCount }} تقييم</span>
+          </div>
+
+        </div>
+
+      </section>
+
+      <section class="section">
+
+        <div class="section-header">
+          <h2>إجراءات سريعة</h2>
+        </div>
+
+        <div class="quick-actions">
+
+          <a routerLink="/users">إدارة المستخدمين</a>
+
+          <a routerLink="/items">إدارة العناصر</a>
+
+          <a routerLink="/categories">إدارة التصنيفات</a>
+
+          <a routerLink="/reviews">إدارة التقييمات</a>
+
+          <a routerLink="/notifications">عرض الإشعارات</a>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>

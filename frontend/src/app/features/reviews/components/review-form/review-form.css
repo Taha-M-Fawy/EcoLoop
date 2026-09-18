@@ -1,0 +1,333 @@
+/* =========================
+   Review Form Page
+========================= */
+
+.review-page {
+  min-height: 100%;
+  padding: 50px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #f0fdf4, #ffffff);
+}
+
+/* =========================
+   Main Card
+========================= */
+
+.review-card {
+  width: 100%;
+  max-width: 620px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.07);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.5s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================
+   Header
+========================= */
+
+.review-card h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  color: #166534;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  color: #6b7280;
+  text-align: center;
+  font-size: 15px;
+}
+
+/* =========================
+   Rating
+========================= */
+
+.rating-section {
+  margin-top: 35px;
+  text-align: center;
+  padding: 22px;
+  background: #f8fafc;
+  border-radius: 18px;
+  border: 1px solid #eef2f7;
+}
+
+.rating-section p {
+  margin: 0 0 14px;
+  font-weight: 700;
+  color: #374151;
+  font-size: 16px;
+}
+
+.stars {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  direction: ltr;
+}
+
+/* Star Button */
+
+.star {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 42px;
+  line-height: 1;
+  color: #d1d5db;
+  padding: 3px;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.star:hover {
+  transform: scale(1.25) rotate(-5deg);
+  color: #fbbf24;
+}
+
+.star.selected {
+  color: #f59e0b;
+}
+
+.star.selected:hover {
+  color: #d97706;
+}
+
+/* Rating Text */
+
+.rating-text {
+  display: block;
+  margin-top: 12px;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* =========================
+   Comment
+========================= */
+
+.comment-section {
+  margin-top: 28px;
+}
+
+.comment-section label {
+  display: block;
+  margin-bottom: 9px;
+  color: #374151;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.comment-section textarea {
+  width: 100%;
+  min-height: 130px;
+  box-sizing: border-box;
+
+  border: 1px solid #d1d5db;
+  border-radius: 14px;
+
+  padding: 14px 16px;
+
+  resize: vertical;
+
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.7;
+
+  background: #ffffff;
+  color: #1f2937;
+
+  outline: none;
+
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.comment-section textarea::placeholder {
+  color: #9ca3af;
+}
+
+.comment-section textarea:hover {
+  border-color: #86efac;
+  background: #fcfffd;
+}
+
+.comment-section textarea:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+  background: #ffffff;
+}
+
+/* =========================
+   Submit Button
+========================= */
+
+.submit-button {
+  width: 100%;
+  margin-top: 25px;
+
+  padding: 14px 20px;
+
+  border: none;
+  border-radius: 14px;
+
+  background: linear-gradient(
+    135deg,
+    #16a34a,
+    #15803d
+  );
+
+  color: white;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 6px 15px rgba(22, 163, 74, 0.25);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.3);
+  filter: brightness(1.05);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.2);
+}
+
+/* =========================
+   Success Message
+========================= */
+
+.success-message {
+  margin-top: 18px;
+
+  padding: 13px 16px;
+
+  border-radius: 12px;
+
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+
+  color: #166534;
+
+  text-align: center;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  animation: messageAppear 0.3s ease;
+}
+
+/* =========================
+   Error Message
+========================= */
+
+.error-message {
+  margin-top: 18px;
+
+  padding: 13px 16px;
+
+  border-radius: 12px;
+
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+
+  color: #991b1b;
+
+  text-align: center;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  animation: messageAppear 0.3s ease;
+}
+
+/* =========================
+   Animations
+========================= */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 650px) {
+
+  .review-page {
+    padding: 25px 15px;
+  }
+
+  .review-card {
+    padding: 25px 20px;
+    border-radius: 20px;
+  }
+
+  .review-card h1 {
+    font-size: 26px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .rating-section {
+    padding: 18px 10px;
+  }
+
+  .star {
+    font-size: 36px;
+  }
+
+  .comment-section textarea {
+    min-height: 120px;
+  }
+}

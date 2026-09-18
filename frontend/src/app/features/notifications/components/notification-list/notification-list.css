@@ -1,0 +1,409 @@
+.notifications-page {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 50px 20px 70px;
+}
+
+/* =========================
+   Header
+========================= */
+
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  margin: 0 0 8px;
+  font-size: 34px;
+  font-weight: 800;
+  color: #166534;
+  letter-spacing: -0.5px;
+}
+
+.page-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+
+/* =========================
+   Actions
+========================= */
+
+.notifications-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 22px;
+}
+
+.mark-all-button {
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+
+  padding: 11px 18px;
+
+  border-radius: 11px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mark-all-button:hover {
+  background: #166534;
+  color: white;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 6px 16px rgba(22, 101, 52, 0.18);
+}
+
+.mark-all-button:active {
+  transform: translateY(0);
+}
+
+
+/* =========================
+   Notifications Container
+========================= */
+
+.notifications-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+
+/* =========================
+   Notification Card
+========================= */
+
+.notification-card {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  padding: 18px 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 17px;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.04);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.notification-card:hover {
+  transform: translateY(-2px);
+
+  border-color: #bbf7d0;
+
+  box-shadow:
+    0 9px 25px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================
+   Unread Notification
+========================= */
+
+.notification-card.unread {
+  background: #f0fdf4;
+
+  border-color: #bbf7d0;
+
+  box-shadow:
+    0 4px 14px rgba(22, 163, 74, 0.08);
+}
+
+.notification-card.unread:hover {
+  background: #ecfdf5;
+
+  border-color: #86efac;
+}
+
+
+/* =========================
+   Notification Icon
+========================= */
+
+.notification-icon {
+  width: 52px;
+  height: 52px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: #dcfce7;
+
+  font-size: 23px;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(22, 101, 52, 0.04);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.notification-card:hover .notification-icon {
+  transform: scale(1.08);
+
+  background: #bbf7d0;
+}
+
+
+/* =========================
+   Notification Content
+========================= */
+
+.notification-content {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.notification-message {
+  margin: 0;
+
+  color: #1f2937;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+
+  font-weight: 600;
+}
+
+.notification-date {
+  display: block;
+
+  margin-top: 6px;
+
+  color: #9ca3af;
+
+  font-size: 12px;
+}
+
+
+/* =========================
+   Unread Dot
+========================= */
+
+.unread-dot {
+  width: 10px;
+  height: 10px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #16a34a;
+
+  box-shadow:
+    0 0 0 4px rgba(22, 163, 74, 0.10);
+}
+
+
+/* =========================
+   Delete Button
+========================= */
+
+.delete-button {
+  flex-shrink: 0;
+
+  border: 1px solid #fecaca;
+
+  background: #fef2f2;
+
+  color: #b91c1c;
+
+  padding: 8px 13px;
+
+  border-radius: 9px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.delete-button:hover {
+  background: #dc2626;
+
+  color: white;
+
+  border-color: #dc2626;
+
+  transform: translateY(-1px);
+}
+
+.delete-button:active {
+  transform: translateY(0);
+}
+
+
+/* =========================
+   Loading / Error / Empty
+========================= */
+
+.state-box {
+  padding: 50px 25px;
+
+  text-align: center;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 18px;
+
+  color: #6b7280;
+
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.state-box.error {
+  background: #fef2f2;
+
+  border-color: #fecaca;
+
+  color: #b91c1c;
+}
+
+.state-box.empty {
+  background: #f9fafb;
+}
+
+.state-box.empty h3 {
+  margin: 0 0 8px;
+
+  color: #374151;
+
+  font-size: 19px;
+}
+
+.state-box.empty p {
+  margin: 0;
+
+  color: #9ca3af;
+
+  font-size: 14px;
+}
+
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 650px) {
+
+  .notifications-page {
+    padding: 35px 15px 50px;
+  }
+
+  .page-header h1 {
+    font-size: 29px;
+  }
+
+  .notifications-actions {
+    margin-bottom: 18px;
+  }
+
+  .mark-all-button {
+    width: 100%;
+  }
+
+  .notification-card {
+    gap: 12px;
+
+    padding: 15px;
+  }
+
+  .notification-icon {
+    width: 44px;
+    height: 44px;
+
+    border-radius: 12px;
+
+    font-size: 19px;
+  }
+
+  .notification-message {
+    font-size: 14px;
+  }
+
+  .notification-date {
+    font-size: 11px;
+  }
+
+  .delete-button {
+    padding: 7px 9px;
+
+    font-size: 12px;
+  }
+
+  .unread-dot {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+
+/* =========================
+   Small Mobile
+========================= */
+
+@media (max-width: 450px) {
+
+  .notification-card {
+    align-items: flex-start;
+  }
+
+  .notification-icon {
+    width: 40px;
+    height: 40px;
+
+    font-size: 17px;
+  }
+
+  .delete-button {
+    padding: 6px 8px;
+  }
+
+}

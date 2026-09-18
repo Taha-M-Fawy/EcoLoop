@@ -1,0 +1,117 @@
+<div class="notifications-page" dir="rtl">
+
+    <div class="page-header">
+        <h1>الإشعارات</h1>
+        <p>آخر التحديثات والتنبيهات الخاصة بك</p>
+    </div>
+
+    @if (notifications.length > 0 && hasUnreadNotifications()) {
+    <div class="notifications-actions">
+        <button
+            type="button"
+            class="mark-all-button"
+            (click)="markAllAsRead()">
+            تعليم الكل كمقروء
+        </button>
+    </div>
+    }
+
+    @if (loading) {
+    <div class="state-box">
+        جاري تحميل الإشعارات...
+    </div>
+    }
+
+    @if (error) {
+    <div class="state-box error">
+        {{ error }}
+    </div>
+    }
+
+    @if (
+    notifications.length === 0 &&
+    !loading &&
+    !error
+    ) {
+    <div class="state-box empty">
+        <h3>لا توجد إشعارات</h3>
+        <p>لا توجد إشعارات جديدة حاليًا.</p>
+    </div>
+    }
+
+    @if (notifications.length > 0) {
+
+    <div class="notifications-container">
+
+        @for (
+        notification of notifications;
+        track notification._id
+        ) {
+
+        <div
+            class="notification-card"
+            [class.unread]="!notification.isRead"
+            (click)="markAsRead(notification)">
+
+            <!-- Notification Icon -->
+            <div class="notification-icon">
+
+                @if (notification.type === 'review') {
+                ⭐
+                }
+
+                @if (notification.type === 'transaction') {
+                🔄
+                }
+
+                @if (notification.type === 'request') {
+                📩
+                }
+
+                @if (notification.type === 'system') {
+                ⚙️
+                }
+
+            </div>
+
+            <!-- Notification Content -->
+            <div class="notification-content">
+
+                <p class="notification-message">
+                    {{ notification.message }}
+                </p>
+
+                @if (notification.createdAt) {
+
+                <span class="notification-date">
+                    {{ notification.createdAt | date:'dd/MM/yyyy - hh:mm a' }}
+                </span>
+
+                }
+
+            </div>
+
+            <!-- Delete Button -->
+            <button
+                type="button"
+                class="delete-button"
+                (click)="deleteNotification(notification); $event.stopPropagation()">
+                حذف
+            </button>
+
+            <!-- Unread Indicator -->
+            @if (!notification.isRead) {
+
+            <span class="unread-dot"></span>
+
+            }
+
+        </div>
+
+        }
+
+    </div>
+
+    }
+
+</div>

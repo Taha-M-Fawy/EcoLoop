@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); 
 const { connectDB } = require('./config/db.config');
 const { PORT } = require('./config/env.config');
 
@@ -9,40 +9,38 @@ const userRoutes = require('./routes/user.route');
 const categoryRoutes = require('./routes/category.route');
 const reviewsRoutes = require('./routes/reviews.routes');
 const notificationsRoutes = require('./routes/notifications.routes');
-const requestsRoutes = require('./routes/requests.routes');
 const locationRoutes = require('./routes/location.routes');
-
 // Middlewares Imports
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
-// Settings & Global Middlewares
-app.set('etag', false);
-
-app.use(cors({
-  origin: 'http://localhost:4200',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
-}));
+//*--- GLOBAL MIDDLEWARES ---*//
+app.use(
+  cors({
+    origin: 'http://localhost:4200',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
+  })
+);
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// API Routes
+
+
+//*--- API ROUTES ---*//
 app.use('/api/items', itemRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/notifications', notificationsRoutes);
-app.use('/api/requests', requestsRoutes);
 app.use('/api/locations', locationRoutes);
-
-// Error Handling Middleware (Always after routes)
+//*--- ERROR HANDLING MIDDLEWARE ---*//
 app.use(errorHandler);
-
-// Connect DB & Start Server
+app.set('etag', false);
+//*--- CONNECT DB & START SERVER ---*//
 const serverPort = PORT || 5000;
 
 connectDB()

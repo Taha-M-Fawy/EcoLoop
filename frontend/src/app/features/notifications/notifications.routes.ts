@@ -1,3 +1,10 @@
 import { Routes } from '@angular/router';
 
-export const NOTIFICATIONS_ROUTES: Routes = [];
+import { NotificationList } from './components/notification-list/notification-list';
+
+export const NOTIFICATIONS_ROUTES: Routes = [
+  {
+    path: '',
+    component: NotificationList
+  }
+];

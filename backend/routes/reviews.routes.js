@@ -1,22 +1,25 @@
 const express = require("express");
+
+const {
+  createReview,
+  getReviews,
+  getReviewById,
+  updateReview,
+  deleteReview
+} = require("../controller/reviews.controller.js");
+
+const { protect } = require("../middlewares/authMiddleware.js");
+
 const router = express.Router();
 
-const {createReview,getReviews,getReviewById,updateReview,deleteReview} = require("../controller/reviews.controller");
+router.post("/", createReview);
 
+router.get("/", protect, getReviews);
 
-// router.post('/' , createReview)
-// router.get('/' , getReviews)
-// router.get('/' , getReviewById)
-// router.put('/' , updateReview)
-// router.delete('/' , deleteReview)
+router.get("/:id", protect, getReviewById);
 
-router.route('/')
-    .post(createReview)
-    .get(getReviews)
+router.put("/:id", protect, updateReview);
 
-router.route('/:id')
-    .get( getReviewById)
-    .put( updateReview)
-    .delete( deleteReview)
+router.delete("/:id", protect, deleteReview);
 
 module.exports = router;

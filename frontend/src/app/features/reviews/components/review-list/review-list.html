@@ -1,27 +1,55 @@
 <div class="reviews-page" dir="rtl">
 
+  <!-- Page Header -->
   <div class="page-header">
-    <h1>التقييمات</h1>
-    <p>آراء وتجارب المستخدمين في مجتمع EcoLoop</p>
+
+    <div>
+      <h1>التقييمات</h1>
+      <p>التقييمات التي حصلت عليها في مجتمع EcoLoop</p>
+    </div>
+
+    <a
+      routerLink="/reviews/add"
+      class="add-review-button">
+      + إضافة تقييم
+    </a>
+
   </div>
 
   @if (loading) {
+
   <div class="loading">
     جاري تحميل التقييمات...
   </div>
+
   }
 
   @if (error) {
+
   <div class="error">
     {{ error }}
   </div>
+
   }
 
   @if (reviews.length === 0 && !loading && !error) {
+
   <div class="empty-state">
+
     <h3>لا توجد تقييمات حتى الآن</h3>
-    <p>كن أول شخص يضيف تقييمًا.</p>
+
+    <p>
+      لم تحصل على أي تقييمات حتى الآن.
+    </p>
+
+    <a
+      routerLink="/reviews/add"
+      class="empty-add-button">
+      + إضافة أول تقييم
+    </a>
+
   </div>
+
   }
 
   @if (reviews.length > 0) {

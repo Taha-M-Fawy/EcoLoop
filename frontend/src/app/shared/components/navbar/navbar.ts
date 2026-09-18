@@ -7,6 +7,7 @@ import { Subject, Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { ItemService } from '../../../features/items/services/item';
 import { CategorySummary } from '../../../features/items/models/item.model';
+import { NotificationService } from '../../../features/notifications/services/notification';
 
 @Component({
   selector: 'app-navbar',
@@ -18,6 +19,7 @@ import { CategorySummary } from '../../../features/items/models/item.model';
 export class NavbarComponent implements OnInit, OnDestroy {
   public authService = inject(AuthService);
   private itemService = inject(ItemService);
+  private notificationService = inject(NotificationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -33,6 +35,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   currentUser = signal<any>(null);
   isLoggedIn = signal<boolean>(false);
+  unreadNotificationsCount = signal<number>(0);
 
   userName = computed(() => {
     const user = this.currentUser();
@@ -45,6 +48,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.syncAuthState();
+    this.notificationService.refreshUnreadCount();
+
+this.notificationService.unreadCount$.subscribe((count) => {
+  this.unreadNotificationsCount.set(count);
+});
 
     if ((this.authService as any).currentUser$) {
       (this.authService as any).currentUser$.subscribe((user: any) => {
@@ -83,6 +91,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.loadCategories();
   }
 
+  private loadUnreadNotifications(): void {
+  if (!this.isLoggedIn()) {
+    this.unreadNotificationsCount.set(0);
+    return;
+  }
+
+  this.notificationService.getUnreadCount().subscribe({
+    next: (count) => {
+      this.unreadNotificationsCount.set(count);
+    },
+    error: () => {
+      this.unreadNotificationsCount.set(0);
+    }
+  });
+}
+
   ngOnDestroy(): void {
     this.searchSub?.unsubscribe();
   }
@@ -115,6 +139,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     if (token) {
       this.isLoggedIn.set(true);
+      this.notificationService.refreshUnreadCount();
       if (userStr) {
         try {
           this.currentUser.set(JSON.parse(userStr));
@@ -125,9 +150,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.currentUser.set((this.authService as any).currentUser);
       }
     } else {
-      this.isLoggedIn.set(false);
-      this.currentUser.set(null);
-    }
+  this.isLoggedIn.set(false);
+  this.currentUser.set(null);
+  this.unreadNotificationsCount.set(0);
+}
   }
 
   private checkIfItemsPage(url: string): void {

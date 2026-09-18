@@ -99,7 +99,7 @@
 // }
 
 
-
+import { RouterLink } from '@angular/router';
 import { Component, OnInit , ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -110,10 +110,16 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-review-list',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink
+  ],
   templateUrl: './review-list.html',
   styleUrl: './review-list.css'
 })
+
+
 export class ReviewList implements OnInit {
 
   reviews: Review[] = [];

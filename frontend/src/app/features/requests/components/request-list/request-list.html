@@ -1,0 +1,102 @@
+<div class="requests-page">
+
+  <div class="page-header">
+    <span class="section-label">COMMUNITY REQUESTS</span>
+
+    <h1>Small acts can meet urgent needs.</h1>
+
+    <p>Help someone in the community find what they need.</p>
+  </div>
+
+  @if (error) {
+    <div class="error">
+      {{ error }}
+    </div>
+  }
+
+  @if (!loading && !error && requests.length === 0) {
+    <div class="message">
+      No requests found.
+    </div>
+  }
+
+  <div class="requests-grid">
+
+    @for (request of requests; track request._id) {
+
+      <div
+        class="request-card"
+        [class.high-priority]="request.urgency === 'High'"
+      >
+
+        <div class="request-top">
+
+          <span
+            class="urgency"
+            [class.low]="request.urgency === 'Low'"
+            [class.medium]="request.urgency === 'Medium'"
+            [class.high]="request.urgency === 'High'"
+          >
+            {{ request.urgency }}
+          </span>
+
+          <span class="request-status">
+            {{ request.status }}
+          </span>
+
+        </div>
+
+        <div class="request-content">
+
+          <h2>{{ request.title }}</h2>
+
+          <p class="description">
+            {{ request.description }}
+          </p>
+
+          <div class="request-details">
+
+            <div class="detail">
+              <span class="detail-label">Quantity</span>
+              <strong>{{ request.quantity }} needed</strong>
+            </div>
+
+            <div class="detail">
+              <span class="detail-label">Location</span>
+              <strong>
+                {{ request.city }}, {{ request.governorate }}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+        @if (request._id) {
+
+          <div class="request-actions">
+
+            <button
+              type="button"
+              class="offer-btn">
+              Offer Item
+            </button>
+
+            <button
+              type="button"
+              class="delete-btn"
+              (click)="deleteRequest(request._id)">
+              Delete
+            </button>
+
+          </div>
+
+        }
+
+      </div>
+
+    }
+
+  </div>
+
+</div>

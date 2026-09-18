@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const { connectDB } = require('./config/db.config');
 const { PORT } = require('./config/env.config');
 
@@ -14,6 +15,7 @@ const requestsRoutes = require('./routes/requests.routes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
+app.use(cors());
 
 // Global Middleware
 app.use(express.json());

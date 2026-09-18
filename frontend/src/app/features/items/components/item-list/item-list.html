@@ -1,55 +1,67 @@
 <div class="min-h-screen bg-slate-50 text-slate-800" dir="rtl">
-  
-  <!-- Sub-Navbar Bar: شريط فلترة ثابت وموزع بالتساوي بدون سيرش مكرر -->
-  <div class="sticky top-[64px] z-30 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs transition-all">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
 
-        <!-- Categories Filter -->
+  <!-- شريط الفلاتر مثبت تحت الناف بار مباشرة وبعرض الشاشة وبدون حقل البحث -->
+  <div class="sticky top-16 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+        <!-- التصنيفات -->
         <div>
           <select
+            id="categoryFilter"
+            name="categoryFilter"
+            aria-label="تصفية حسب التصنيف"
             [(ngModel)]="filters.categoryId"
             (change)="applyFilters()"
-            class="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer font-medium"
           >
             <option value="">كل التصنيفات</option>
             <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
           </select>
         </div>
 
-        <!-- Type Filter -->
+        <!-- نوع المعاملة -->
         <div>
           <select
+            id="typeFilter"
+            name="typeFilter"
+            aria-label="تصفية حسب نوع المعاملة"
             [(ngModel)]="filters.type"
             (change)="applyFilters()"
-            class="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer font-medium"
           >
             <option value="all">جميع المعاملات</option>
-            <option value="donation">🎁 تبرع مجاني</option>
-            <option value="exchange">🔄 تبادل مباشر</option>
-            <option value="sell">🏷️ بيع رمزي</option>
+            <option value="donation">تبرع مجاني</option>
+            <option value="exchange">تبادل</option>
+            <option value="sell">بيع رمزي</option>
           </select>
         </div>
 
-        <!-- Governorate Select -->
+        <!-- المحافظة -->
         <div>
           <select
+            id="governorateFilter"
+            name="governorateFilter"
+            aria-label="تصفية حسب المحافظة"
             [(ngModel)]="filters.governorate"
             (change)="onGovChange()"
-            class="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer font-medium"
           >
             <option value="">كل المحافظات</option>
             <option *ngFor="let gov of governorates" [value]="gov">{{ gov }}</option>
           </select>
         </div>
 
-        <!-- City Select -->
+        <!-- المدينة / المركز -->
         <div>
           <select
+            id="cityFilter"
+            name="cityFilter"
+            aria-label="تصفية حسب المدينة أو المركز"
             [(ngModel)]="filters.city"
             (change)="applyFilters()"
             [disabled]="!filters.governorate"
-            class="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-medium"
           >
             <option value="">
               {{ filters.governorate ? 'كل المراكز / المدن' : 'اختر المحافظة أولاً' }}
@@ -62,10 +74,10 @@
     </div>
   </div>
 
-  <!-- محتوى الكروت وباقي الصفحة -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <!-- شبكة المعروضات -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
-    <!-- Skeletons (Loading) -->
+    <!-- مؤشر التحميل (Skeletons) -->
     <div
       *ngIf="loading"
       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
@@ -76,7 +88,7 @@
       ></div>
     </div>
 
-    <!-- Items Grid -->
+    <!-- شبكة السلع -->
     <div
       *ngIf="!loading && items.length > 0"
       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-stretch"
@@ -84,17 +96,17 @@
       <app-item-card *ngFor="let item of items" [item]="item" class="h-full" />
     </div>
 
-    <!-- Empty State -->
+    <!-- في حال عدم وجود نتائج -->
     <div
       *ngIf="!loading && items.length === 0"
       class="rounded-2xl border border-slate-200 bg-white py-16 text-center shadow-xs"
     >
       <div class="text-4xl mb-3">🔍</div>
       <h3 class="text-base font-bold text-slate-800">لا توجد معروضات مطابقة</h3>
-      <p class="text-xs text-slate-500 mt-1">جرّب تغيير التصنيف أو المحافظة لإظهار نتائج أخرى.</p>
+      <p class="text-sm text-slate-500 mt-1">جرّب تغيير التصنيف أو المحافظة لإظهار نتائج أخرى.</p>
     </div>
 
-    <!-- Pagination Controls -->
+    <!-- الترقيم (Pagination) -->
     <div
       *ngIf="!loading && totalItems > 0"
       class="mt-12 flex flex-col items-center justify-between gap-4 sm:flex-row border-t border-slate-200 pt-6"
@@ -139,5 +151,5 @@
       </div>
     </div>
 
-  </div>
+  </main>
 </div>

@@ -3,7 +3,13 @@ const itemService = require('../services/item.service');
 // 1. Get All Items
 exports.getAllItems = async (req, res, next) => {
   try {
-    const result = await itemService.findAllItems(req.query);
+    const currentUserId = 
+      req.user?._id || 
+      req.user?.id || 
+      req.headers['x-user-id'] || 
+      req.query.currentUserId;
+
+    const result = await itemService.findAllItems(req.query, currentUserId);
 
     res.status(200).json({
       success: true,
@@ -21,10 +27,16 @@ exports.getItemById = async (req, res, next) => {
     const item = await itemService.findItemById(req.params.id);
 
     if (!item) {
-      return res.status(404).json({ success: false, message: 'السلعة غير موجودة' });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'السلعة غير موجودة' 
+      });
     }
 
-    res.status(200).json({ success: true, data: item });
+    res.status(200).json({ 
+      success: true, 
+      data: item 
+    });
   } catch (error) {
     next(error);
   }
@@ -33,7 +45,12 @@ exports.getItemById = async (req, res, next) => {
 // 3. Create Item
 exports.createItem = async (req, res, next) => {
   try {
-    const ownerId = req.headers['x-user-id'] || req.body.ownerId;
+    const ownerId = 
+      req.user?._id || 
+      req.user?.id || 
+      req.headers['x-user-id'] || 
+      req.body.ownerId;
+
     const newItem = await itemService.createNewItem(req.body, ownerId);
 
     res.status(201).json({
@@ -51,6 +68,13 @@ exports.updateItem = async (req, res, next) => {
   try {
     const updatedItem = await itemService.modifyItem(req.params.id, req.body);
 
+    if (!updatedItem) {
+      return res.status(404).json({
+        success: false,
+        message: 'السلعة غير موجودة أو تعذر تعديلها'
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: 'تم تحديث السلعة بنجاح',
@@ -64,7 +88,16 @@ exports.updateItem = async (req, res, next) => {
 // 5. Delete Item
 exports.deleteItem = async (req, res, next) => {
   try {
-    await itemService.removeItem(req.item);
+    const targetItem = req.item || await itemService.findItemById(req.params.id);
+
+    if (!targetItem) {
+      return res.status(404).json({
+        success: false,
+        message: 'السلعة غير موجودة'
+      });
+    }
+
+    await itemService.removeItem(targetItem);
 
     res.status(200).json({
       success: true,

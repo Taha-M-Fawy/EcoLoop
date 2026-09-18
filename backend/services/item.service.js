@@ -1,8 +1,8 @@
 const Item = require('../models/items.model');
 const mongoose = require('mongoose');
 
-// 1. Get All Items with dynamic filters, pagination, and robust regex search
-exports.findAllItems = async (queryParams = {}) => {
+// 1. Get All Items with dynamic filters, pagination, robust regex search, and owner filtering
+exports.findAllItems = async (queryParams = {}, authUserId = null) => {
   let { 
     category, 
     categoryId, 
@@ -10,6 +10,8 @@ exports.findAllItems = async (queryParams = {}) => {
     city, 
     type, 
     search,
+    owner,
+    ownerId,
     page = 1,
     limit = 8
   } = queryParams;
@@ -17,17 +19,31 @@ exports.findAllItems = async (queryParams = {}) => {
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 8));
 
-  // مصفوفة الشروط المجمعة
-  const conditions = [
-    {
+  const conditions = [];
+
+  // 1. معالجة فلتر المالك (owner=me أو معرّف محدد)
+  const targetOwner = ownerId || owner;
+  let resolvedOwnerId = null;
+
+  if (targetOwner === 'me') {
+    resolvedOwnerId = authUserId;
+  } else if (targetOwner && mongoose.Types.ObjectId.isValid(targetOwner)) {
+    resolvedOwnerId = targetOwner;
+  }
+
+  if (resolvedOwnerId && mongoose.Types.ObjectId.isValid(resolvedOwnerId)) {
+    conditions.push({ ownerId: new mongoose.Types.ObjectId(resolvedOwnerId) });
+  } else {
+    // إظهار المتاح فقط في التصفح العام
+    conditions.push({
       $or: [
         { status: 'available' },
         { status: { $exists: false } }
       ]
-    }
-  ];
+    });
+  }
 
-  // 1. معالجة وفك تشفير البحث النصي
+  // 2. معالجة وفك تشفير البحث النصي
   if (search && typeof search === 'string' && search.trim() !== '') {
     let cleanSearch = search.trim();
     try {
@@ -36,7 +52,6 @@ exports.findAllItems = async (queryParams = {}) => {
       cleanSearch = search.trim();
     }
 
-    // تنظيف الحروف الخاصة لتفادي أخطاء الـ Regex
     const escapedSearch = cleanSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     conditions.push({
@@ -47,28 +62,27 @@ exports.findAllItems = async (queryParams = {}) => {
     });
   }
 
-  // 2. فلتر التصنيف (دعم category و categoryId)
+  // 3. فلتر التصنيف
   const targetCategory = categoryId || category;
   if (targetCategory && targetCategory !== 'all' && mongoose.Types.ObjectId.isValid(targetCategory)) {
     conditions.push({ categoryId: new mongoose.Types.ObjectId(targetCategory) });
   }
 
-  // 3. فلتر المحافظة
+  // 4. فلتر المحافظة
   if (governorate && typeof governorate === 'string' && governorate.trim() !== '' && governorate !== 'all') {
     conditions.push({ governorate: governorate.trim() });
   }
 
-  // 4. فلتر المدينة
+  // 5. فلتر المدينة
   if (city && typeof city === 'string' && city.trim() !== '' && city !== 'all') {
     conditions.push({ city: city.trim() });
   }
 
-  // 5. نوع المعاملة
+  // 6. نوع المعاملة
   if (type && ['donation', 'exchange', 'sell'].includes(type)) {
     conditions.push({ type });
   }
 
-  // دمج كافة الشروط في فلتر موحد
   const finalFilter = conditions.length > 0 ? { $and: conditions } : {};
 
   const skip = (pageNum - 1) * limitNum;
@@ -79,7 +93,7 @@ exports.findAllItems = async (queryParams = {}) => {
       .skip(skip)
       .limit(limitNum)
       .populate('categoryId', 'name')
-      .populate('ownerId', 'name username avatar phone')
+      .populate('ownerId', 'name username avatar phone rating isVerified')
       .lean(),
     Item.countDocuments(finalFilter)
   ]);
@@ -101,10 +115,26 @@ exports.findItemById = async (id) => {
     return null;
   }
 
-  return await Item.findById(id)
+  let item = await Item.findById(id)
     .populate('categoryId', 'name')
-    .populate('ownerId', 'name username avatar phone rating')
+    .populate('ownerId', 'name username avatar phone rating isVerified')
     .lean();
+
+  if (!item) return null;
+
+  const rawOwnerId = item.ownerId?._id || item.ownerId || item.userId;
+  if (rawOwnerId && (typeof item.ownerId === 'string' || item.ownerId instanceof mongoose.Types.ObjectId || !item.ownerId?.name)) {
+    try {
+      const user = await mongoose.model('User').findById(rawOwnerId).select('name username avatar phone rating isVerified').lean();
+      if (user) {
+        item.ownerId = user;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return item;
 };
 
 // 3. Create New Item
@@ -112,7 +142,7 @@ exports.createNewItem = async (payload, ownerId) => {
   const allowedFields = [
     'title', 'description', 'type', 'price', 'exchangeWith',
     'condition', 'quantity', 'images', 'governorate', 'city', 
-    'categoryId', 'expiryDate', 'batchNumber', 'status'
+    'categoryId', 'expiryDate', 'batchNumber', 'status', 'packagingType', 'isControlledSubstance'
   ];
 
   const safePayload = {};

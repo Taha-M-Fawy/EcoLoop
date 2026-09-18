@@ -54,28 +54,53 @@
         </div>
       </div>
 
-      <!-- شريط البحث الموحد للموقع بالكامل -->
-      <div class="hidden lg:flex flex-1 max-w-md mx-2">
+      <!-- شريط البحث الموحد للموقع بالكامل (ديسكتوب) -->
+      <div *ngIf="!isItemsPage()" class="hidden lg:flex flex-1 max-w-md mx-2">
         <div class="relative w-full">
           <input 
+            id="desktopSearchInput"
+            name="desktopSearchInput"
+            aria-label="البحث عن السلع"
             type="text" 
             [(ngModel)]="searchQuery" 
-            (keyup.enter)="onSearch()"
+            (ngModelChange)="onSearchInput($event)"
             placeholder="ابحث عن أجهزة، كتب، أدوية، مستلزمات..." 
-            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pr-9 pl-4 text-xs text-slate-800 placeholder-slate-400 outline-none transition focus:border-emerald-500 focus:bg-white"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pr-9 pl-9 text-xs text-slate-800 placeholder-slate-400 outline-none transition focus:border-emerald-500 focus:bg-white"
           />
-          <button 
-            type="button" 
-            (click)="onSearch()"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 cursor-pointer text-sm"
-          >
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">
             🔍
+          </span>
+          <button 
+            *ngIf="searchQuery" 
+            type="button" 
+            (click)="clearSearch()" 
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-600 font-bold text-xs cursor-pointer p-0.5 transition"
+            title="مسح البحث"
+          >
+            ✕
           </button>
         </div>
       </div>
 
+      <!-- مساحة تعويضية للمحاذاة عند إخفاء السيرش في صفحة المعروضات -->
+      <div *ngIf="isItemsPage()" class="hidden lg:flex flex-1"></div>
+
       <!-- الأزرار والحساب -->
       <div class="flex items-center gap-2.5">
+        
+        <!-- زر الطلبات المباشر (يظهر فقط للمسجلين) -->
+        <a 
+          *ngIf="isLoggedIn()"
+          routerLink="/requests"
+          routerLinkActive="bg-emerald-50 text-emerald-700 border-emerald-300"
+          class="relative inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-emerald-600 text-xs font-bold transition shadow-xs cursor-pointer"
+          title="الطلبات والمعاملات"
+        >
+          <span class="text-sm leading-none">🔄</span>
+          <span class="hidden md:inline">الطلبات</span>
+        </a>
+
+        <!-- زر أضف سلعة -->
         <a 
           routerLink="/items/new" 
           class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition shadow-xs active:scale-95"
@@ -84,7 +109,8 @@
           <span class="hidden sm:inline">أضف سلعة</span>
         </a>
 
-        <ng-container *ngIf="authService.currentUser$ | async as user; else guestTpl">
+        <!-- في حالة تسجيل الدخول -->
+        <ng-container *ngIf="isLoggedIn(); else guestTpl">
           <div class="relative">
             <button 
               type="button"
@@ -92,10 +118,10 @@
               class="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition cursor-pointer"
             >
               <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-xs">
-                {{ user.name ? user.name[0].toUpperCase() : 'ع' }}
+                {{ userInitial() }}
               </div>
               <span class="hidden xl:inline text-xs font-bold text-slate-700 max-w-[90px] truncate">
-                {{ user.name || 'حسابي' }}
+                {{ userName() }}
               </span>
               <span class="text-[9px] text-slate-400">▼</span>
             </button>
@@ -106,12 +132,13 @@
               class="absolute left-0 mt-2 w-48 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50"
             >
               <div class="px-4 py-2 border-b border-slate-100">
-                <p class="text-xs font-black text-slate-900 truncate">{{ user.name }}</p>
-                <p class="text-[10px] text-slate-400 truncate">{{ user.email }}</p>
+                <p class="text-xs font-black text-slate-900 truncate">{{ userName() }}</p>
+                <p *ngIf="currentUser()?.email" class="text-[10px] text-slate-400 truncate">{{ currentUser()?.email }}</p>
               </div>
 
               <a routerLink="/profile" (click)="isUserMenuOpen.set(false)" class="block px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">👤 الملف الشخصي</a>
               <a routerLink="/items" [queryParams]="{ owner: 'me' }" (click)="isUserMenuOpen.set(false)" class="block px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">📦 معروضاتي</a>
+              <a routerLink="/requests" (click)="isUserMenuOpen.set(false)" class="block px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">🔄 الطلبات والمعاملات</a>
               
               <div class="border-t border-slate-100 my-1"></div>
               <button type="button" (click)="logout()" class="w-full text-right px-4 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 cursor-pointer">🚪 تسجيل الخروج</button>
@@ -119,6 +146,7 @@
           </div>
         </ng-container>
 
+        <!-- في حالة عدم تسجيل الدخول (زائر) -->
         <ng-template #guestTpl>
           <div class="flex items-center gap-1.5">
             <a routerLink="/auth/login" class="px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-emerald-600 rounded-lg">دخول</a>
@@ -133,22 +161,38 @@
     </div>
 
     <!-- شريط البحث على الموبايل -->
-    <div class="pb-3 lg:hidden">
+    <div *ngIf="!isItemsPage()" class="pb-3 lg:hidden">
       <div class="relative w-full">
         <input 
+          id="mobileSearchInput"
+          name="mobileSearchInput"
+          aria-label="البحث عن السلع"
           type="text" 
           [(ngModel)]="searchQuery" 
-          (keyup.enter)="onSearch()"
+          (ngModelChange)="onSearchInput($event)"
           placeholder="ابحث عن أجهزة، كتب، أدوية..." 
-          class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pr-9 pl-4 text-xs outline-none focus:border-emerald-500 focus:bg-white"
+          class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pr-9 pl-9 text-xs outline-none focus:border-emerald-500 focus:bg-white"
         />
-        <button type="button" (click)="onSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</button>
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs select-none">🔍</span>
+        <button 
+          *ngIf="searchQuery" 
+          type="button" 
+          (click)="clearSearch()" 
+          class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-600 font-bold text-xs cursor-pointer p-0.5 transition"
+          title="مسح البحث"
+        >
+          ✕
+        </button>
       </div>
     </div>
   </div>
 
+  <!-- قائمة الموبايل -->
   <div *ngIf="isMobileMenuOpen()" class="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-3">
     <a (click)="toggleMobileMenu()" routerLink="/" class="block text-xs font-bold text-slate-800">الرئيسية</a>
     <a (click)="toggleMobileMenu()" routerLink="/items" class="block text-xs font-bold text-slate-800">جميع المعروضات</a>
+    <a *ngIf="isLoggedIn()" (click)="toggleMobileMenu()" routerLink="/requests" class="block text-xs font-bold text-emerald-700">🔄 الطلبات والمعاملات</a>
+    <a *ngIf="isLoggedIn()" (click)="toggleMobileMenu()" routerLink="/profile" class="block text-xs font-bold text-slate-800">الملف الشخصي</a>
+    <button *ngIf="isLoggedIn()" (click)="logout()" class="block text-xs font-bold text-rose-600 text-right w-full">تسجيل الخروج</button>
   </div>
 </nav>

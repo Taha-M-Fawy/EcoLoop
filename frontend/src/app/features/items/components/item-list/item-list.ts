@@ -35,23 +35,26 @@ export class ItemListComponent implements OnInit {
   totalItems = 0;
   readonly pageSize = 8;
 
-  filters: ItemFilters = {
+  filters: ItemFilters & { owner?: string } = {
     type: 'all',
     categoryId: '',
     governorate: '',
     city: '',
     search: '',
+    owner: '',
   };
 
   locationsData: LocationItem[] = [];
   governorates: string[] = [];
   availableCities: string[] = [];
 
+  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   ngOnInit(): void {
     this.loadLocations();
     this.loadCategories();
 
-    // الاستماع لمعاملات الرابط (بما فيها البحث القادم من النافبار)
+    // الاستماع لمعاملات الرابط (بما فيها معروضاتي والبحث القادم من النافبار)
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
@@ -60,11 +63,25 @@ export class ItemListComponent implements OnInit {
         this.filters.governorate = params['governorate'] || '';
         this.filters.city = params['city'] || '';
         this.filters.search = params['search'] || '';
+        this.filters.owner = params['owner'] || '';
         this.currentPage = Number(params['page']) || 1;
 
         this.updateAvailableCities();
         this.loadItems();
       });
+  }
+
+  // دالة البحث مع Debounce لمنع تكرار الريكويستات أثناء الكتابة
+  onSearchInput(value: string): void {
+    this.filters.search = value;
+
+    if (this.searchDebounceTimer) {
+      clearTimeout(this.searchDebounceTimer);
+    }
+
+    this.searchDebounceTimer = setTimeout(() => {
+      this.applyFilters();
+    }, 400);
   }
 
   private updateAvailableCities(): void {
@@ -126,6 +143,9 @@ export class ItemListComponent implements OnInit {
   private syncUrlParams(): void {
     const queryParams: Record<string, any> = {};
 
+    if (this.filters.owner) {
+      queryParams['owner'] = this.filters.owner;
+    }
     if (this.filters.categoryId) {
       queryParams['categoryId'] = this.filters.categoryId;
     }
@@ -163,6 +183,23 @@ export class ItemListComponent implements OnInit {
       page: this.currentPage,
       limit: this.pageSize,
     };
+
+    // فلترة معروضاتي
+    if (this.filters.owner) {
+      queryParams['owner'] = this.filters.owner;
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          const userId = user._id || user.id;
+          if (userId) {
+            queryParams['ownerId'] = userId;
+          }
+        } catch {
+          // تجاهل خطأ التحويل
+        }
+      }
+    }
 
     if (this.filters.categoryId) {
       queryParams['categoryId'] = this.filters.categoryId;

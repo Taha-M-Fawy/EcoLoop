@@ -182,7 +182,7 @@
               </div>
               <ng-template #avatarLetter>
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-sm font-black text-emerald-800 border border-emerald-200">
-                  {{ ((item.ownerId?.name || item.ownerId?.username || 'م')[0]) | uppercase }}
+                  {{ (item.ownerId?.name || item.ownerId?.username || 'م').slice(0, 1) | uppercase }}
                 </div>
               </ng-template>
 

@@ -52,7 +52,13 @@ const itemSchema = new mongoose.Schema(
         },
         images: {
             type: [String],
-            default: ['https://placeholder.co/600x400/png']
+            required: [true, 'يجب رفع صورة واحدة على الأقل للسلعة'],
+            validate: {
+                validator: function (v) {
+                    return Array.isArray(v) && v.length > 0;
+                },
+                message: 'يجب رفع صورة واحدة على الأقل'
+            }
         },
         governorate: {
             type: String,
@@ -89,16 +95,16 @@ const itemSchema = new mongoose.Schema(
     }
 );
 
-itemSchema.index({ categoryId: 1, governorate: 1, status: 1 });
+itemSchema.index({ categoryId: 1, governorate: 1, city: 1, status: 1 });
 itemSchema.index({ title: 'text', description: 'text' });
 
 itemSchema.pre('save', function () {
-  if (this.type !== 'sell') {
-    this.price = null;
-  }
-  if (this.type !== 'exchange') {
-    this.exchangeWith = null;
-  }
+    if (this.type !== 'sell') {
+        this.price = null;
+    }
+    if (this.type !== 'exchange') {
+        this.exchangeWith = null;
+    }
 });
 
 module.exports = mongoose.model('Item', itemSchema, 'items');

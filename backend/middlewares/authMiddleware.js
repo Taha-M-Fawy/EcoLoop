@@ -15,19 +15,19 @@ const protect = (req, res, next) => {
       req.user = decoded;
       return next();
     } catch (error) {
-      return res.status(401).json({ message: 'غير مصرح، الـ Token غير صالح' });
+      return res.status(401).json({ message: 'Unauthorized, invalid token' });
     }
   }
 
   if (!token) {
-    return res.status(401).json({ message: 'غير مصرح، لا يوجد Token' });
+    return res.status(401).json({ message: 'Unauthorized, no token provided' });
   }
 };
 
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'ليس لديك الصلاحية للوصول لهذا المسار' });
+      return res.status(403).json({ message: 'You do not have permission to access this route' });
     }
 
     next();

@@ -1,0 +1,172 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  box-sizing: border-box;
+  direction: rtl;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at 10% 15%, #dcefdc 0, transparent 28%),
+    #f2f4ef;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-page::after {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: #dce8d7;
+  right: -140px;
+  top: -130px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 450px;
+  padding: 48px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 28px;
+  border: 1px solid #dce5dc;
+  box-shadow: 0 25px 70px rgba(15, 28, 19, 0.15);
+  position: relative;
+  z-index: 2;
+}
+
+.logo {
+  text-align: center;
+  color: #101613;
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.logo::before {
+  content: "🌱";
+  font-size: 28px;
+  margin-left: 9px;
+  vertical-align: middle;
+}
+
+.logo::after {
+  content: "";
+  display: block;
+  width: 55px;
+  height: 5px;
+  background: #20b957;
+  border-radius: 10px;
+  margin: 11px auto 0;
+}
+
+h1 {
+  text-align: center;
+  margin: 0;
+  color: #111613;
+  font-size: 29px;
+  font-weight: 900;
+}
+
+.subtitle {
+  text-align: center;
+  color: #78817b;
+  font-size: 14px;
+  margin: 10px 0 32px;
+}
+
+.input-group {
+  margin-bottom: 21px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #26352c;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 16px 17px;
+  box-sizing: border-box;
+  border: 1px solid #d7dfd8;
+  border-radius: 13px;
+  background: #f8faf7;
+  color: #1d2a22;
+  font-size: 15px;
+  transition: 0.25s;
+}
+
+.input-group input:focus {
+  outline: none;
+  background: white;
+  border-color: #20b957;
+  box-shadow: 0 0 0 4px rgba(32, 185, 87, 0.12);
+}
+
+.input-group input::placeholder {
+  color: #a0a8a2;
+}
+
+button {
+  width: 100%;
+  padding: 16px;
+  margin-top: 7px;
+  border: none;
+  border-radius: 13px;
+  background: #101613;
+  color: white;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+button:hover {
+  background: #16843f;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(22, 132, 63, 0.22);
+}
+
+.register-text {
+  text-align: center;
+  margin-top: 25px;
+  color: #78817b;
+  font-size: 14px;
+}
+
+.register-text a {
+  color: #16843f;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.register-text a:hover {
+  color: #0d5729;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .login-page {
+    padding: 18px;
+  }
+
+  .login-card {
+    padding: 32px 24px;
+  }
+
+  .logo {
+    font-size: 32px;
+  }
+
+  .logo::before {
+    font-size: 23px;
+  }
+}

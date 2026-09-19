@@ -13,26 +13,29 @@
       <!-- شريط العنوان والرجوع العلوي -->
       <div class="flex items-center justify-between mb-6">
         <button 
+          type="button"
           (click)="goBack()" 
           class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-emerald-600 transition cursor-pointer"
         >
-          <span class="text-base">&rarr;</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
           <span>العودة إلى قائمة المعروضات</span>
         </button>
 
-        <span class="text-xs font-black tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+        <span class="text-xs font-bold tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
           تفاصيل العرض
         </span>
       </div>
 
-      <!-- شبكة العرض (معرض الصور يميناً والتفاصيل يساراً) -->
+      <!-- شبكة العرض -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         <!-- العمود الأول (يمين): معرض الصور التفاعلي (7 أعمدة) -->
         <div class="lg:col-span-7 flex flex-col gap-4">
           
           <!-- الصورة الرئيسية الكبيرة -->
-          <div class="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div class="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xs">
             <img 
               #mainImg
               [src]="selectedImage || fallbackImg" 
@@ -61,29 +64,46 @@
         <div class="lg:col-span-5 flex flex-col gap-5">
           
           <!-- الكارت الأساسي للسلعة -->
-          <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs">
             
             <!-- الموقع والنوع -->
             <div class="flex items-center justify-between gap-2 mb-4">
-              <span class="text-xs font-medium text-slate-500">
-                📍 {{ item.governorate }} - {{ item.city }}
+              <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                </svg>
+                <span>{{ item.governorate }} - {{ item.city }}</span>
               </span>
 
               <span 
-                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
                 [ngClass]="{
-                  'bg-emerald-100 text-emerald-800': item.type === 'donation',
-                  'bg-sky-100 text-sky-800': item.type === 'exchange',
-                  'bg-amber-100 text-amber-800': item.type === 'sell'
+                  'bg-emerald-50 text-emerald-700 border border-emerald-200/60': item.type === 'donation',
+                  'bg-sky-50 text-sky-700 border border-sky-200/60': item.type === 'exchange',
+                  'bg-amber-50 text-amber-700 border border-amber-200/60': item.type === 'sell'
                 }"
               >
-                {{ item.type === 'donation' ? '🎁 تبرع مجاني' : item.type === 'exchange' ? '🔄 مقايضة / تبادل' : '🏷️ بيع رمزي' }}
+                <!-- أيقونة التبرع -->
+                <svg *ngIf="item.type === 'donation'" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H4.5a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                </svg>
+                <!-- أيقونة المقايضة -->
+                <svg *ngIf="item.type === 'exchange'" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                </svg>
+                <!-- أيقونة البيع -->
+                <svg *ngIf="item.type === 'sell'" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                </svg>
+                <span>{{ item.type === 'donation' ? 'تبرع مجاني' : item.type === 'exchange' ? 'مقايضة / تبادل' : 'بيع رمزي' }}</span>
               </span>
             </div>
 
             <!-- العنوان والحالة -->
             <div class="mb-4">
-              <span *ngIf="item.condition" class="inline-block rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600 mb-2">
+              <span *ngIf="item.condition" class="inline-block rounded-lg bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600 mb-2">
                 {{ getConditionLabel(item.condition) }}
               </span>
               <h1 class="text-2xl font-black text-slate-900 leading-tight">
@@ -109,7 +129,9 @@
             <!-- فحص الأمان الطبي إن وجد -->
             <div *ngIf="item.expiryDate || item.batchNumber" class="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 space-y-2">
               <div class="flex items-center gap-2 text-xs font-bold text-emerald-900">
-                <span>🛡️</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
                 <span>فحص الأمان والمطابقة الدوائية</span>
               </div>
               <div class="grid grid-cols-2 gap-2 text-xs text-slate-700 pt-1 border-t border-emerald-200/60">
@@ -132,38 +154,51 @@
                 صندوق المقايضة (Barter Box)
               </span>
               <p class="text-xs font-medium text-slate-800">
-                يرغب المالك بالتبادل مع: <strong class="text-sky-900">{{ item.exchangeWith || 'أي بديل مناسب ومفيد' }}</strong>
+                يرغب المالك بالتبادل مع: <strong class="text-sky-900">{{ item.exchangeWith || item.exchangeFor || 'أي بديل مناسب ومفيد' }}</strong>
               </p>
             </div>
 
             <!-- أزرار الإجراءات -->
             <div>
-              <!-- في حال كان المستخدم صاحب السلعة -->
-              <div *ngIf="isOwner" class="grid grid-cols-2 gap-3">
-                <button 
-                  type="button"
-                  (click)="editItem()"
-                  class="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer text-center"
-                >
-                  ✏️ تعديل السلعة
-                </button>
-                <button 
-                  type="button"
-                  (click)="deleteItem()"
-                  class="w-full py-3 px-4 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition cursor-pointer text-center"
-                >
-                  🗑️ حذف
-                </button>
+              <!-- في حال كان المستخدم يملك صلاحية الإدارة (المالك أو الأدمن) -->
+              <div *ngIf="canManageItem" class="space-y-2">
+                <div *ngIf="isAdmin && !isOwner" class="text-[11px] font-bold text-amber-700 bg-amber-50 p-2 rounded-xl border border-amber-200 text-center">
+                  أنت تشاهد هذه السلعة بصلاحيات المسؤول (Admin)
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <button 
+                    type="button"
+                    (click)="editItem()"
+                    class="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                    </svg>
+                    <span>تعديل السلعة</span>
+                  </button>
+                  <button 
+                    type="button"
+                    (click)="deleteItem()"
+                    class="w-full py-3 px-4 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                    </svg>
+                    <span>حذف</span>
+                  </button>
+                </div>
               </div>
 
-              <!-- في حال كان المستخدم يتصفح السلعة -->
+              <!-- في حال كان المستخدم زائراً / مشترياً يتصفح السلعة -->
               <button 
-                *ngIf="!isOwner"
+                *ngIf="!canManageItem"
                 type="button"
                 (click)="onRequestItem()"
-                class="w-full py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold text-sm shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2 cursor-pointer"
+                class="w-full py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold text-sm shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>🤝</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.75.75 0 01-1.074-.85 5.968 5.968 0 011.025-2.228C3.87 16.47 3 14.36 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                </svg>
                 <span>
                   {{ item.type === 'exchange' ? 'بدء المقايضة والتواصل' : (item.type === 'donation' ? 'طلب استلام السلعة' : 'طلب الشراء والتواصل') }}
                 </span>
@@ -173,7 +208,7 @@
           </div>
 
           <!-- كارت موثوقية المالك (ديناميكي بالكامل) -->
-          <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm flex items-center justify-between">
+          <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
             <div class="flex items-center gap-3.5">
               
               <!-- صورة المالك الشخصية أو الحرف الأول -->
@@ -192,7 +227,11 @@
                   <span class="text-sm font-bold text-slate-900">
                     {{ item.ownerId?.name || item.ownerId?.username || 'صاحب العرض' }}
                   </span>
-                  <span *ngIf="item.ownerId?.isVerified !== false" class="text-xs text-emerald-600 font-bold" title="حساب موثق">✓</span>
+                  <span *ngIf="item.ownerId?.isVerified !== false" class="text-xs text-emerald-600 font-bold" title="حساب موثق">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 inline-block text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                    </svg>
+                  </span>
                 </div>
                 
                 <!-- التقييم وعدد المعاملات المكتملة -->
@@ -205,7 +244,7 @@
             </div>
 
             <span class="rounded-xl bg-slate-100 px-3 py-1.5 text-[11px] font-bold text-slate-600">
-              OWNER TRUST
+              موثوقية العارض
             </span>
           </div>
 

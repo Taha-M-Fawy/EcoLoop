@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 export interface User {
   _id?: string;
+  id?: string;
   name?: string;
   email: string;
   role?: string;
@@ -24,13 +25,10 @@ export interface AuthResponse {
 })
 export class AuthService {
   private http = inject(HttpClient);
-  // تأكد من البورت والمسار الأساسي عندك (غالباً /api/users)
   private readonly baseUrl = 'http://localhost:5000/api/users';
 
   private currentUserSubject = new BehaviorSubject<User | null>(this.getStoredUser());
   public currentUser$ = this.currentUserSubject.asObservable();
-
-  constructor() {}
 
   // 1. تسجيل الدخول
   login(credentials: { email: string; password: string }): Observable<AuthResponse> {
@@ -80,13 +78,26 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
 
-  // استرجاع الـ Token للـ Interceptor
+  // استرجاع الـ Token
   getToken(): string | null {
     return localStorage.getItem('token');
   }
 
+  // جلب المستخدم الحالي مع Fallback فوري للـ localStorage لو الـ Subject لم يتحدث
   get currentUserValue(): User | null {
-    return this.currentUserSubject.value;
+    const current = this.currentUserSubject.value;
+    if (current) return current;
+
+    const stored = this.getStoredUser();
+    if (stored) {
+      this.currentUserSubject.next(stored);
+      return stored;
+    }
+    return null;
+  }
+
+  get isLoggedIn(): boolean {
+    return !!this.getToken() && !!this.currentUserValue;
   }
 
   private getStoredUser(): User | null {

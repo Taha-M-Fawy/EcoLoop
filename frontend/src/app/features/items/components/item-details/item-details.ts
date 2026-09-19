@@ -26,12 +26,24 @@ export class ItemDetailsComponent implements OnInit {
   selectedImage: string | null = null;
   fallbackImg = 'https://placehold.co/600x400/png';
 
+  get currentUser(): any {
+    return this.authService.currentUserValue;
+  }
+
   get currentUserId(): string | null {
-    const user = this.authService.currentUserValue;
-    return user?._id || (user as any)?.id || null;
+    const user = this.currentUser;
+    return user?._id || user?.id || null;
+  }
+
+  get isAdmin(): boolean {
+    return this.currentUser?.role === 'admin';
   }
 
   isOwner = false;
+
+  get canManageItem(): boolean {
+    return Boolean(this.isAdmin || this.isOwner);
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -88,7 +100,7 @@ export class ItemDetailsComponent implements OnInit {
   }
 
   editItem(): void {
-    if (!this.isOwner) {
+    if (!this.canManageItem) {
       this.toast.error('غير مصرح لك بتعديل هذه السلعة');
       return;
     }
@@ -96,12 +108,16 @@ export class ItemDetailsComponent implements OnInit {
   }
 
   deleteItem(): void {
-    if (!this.isOwner) {
+    if (!this.canManageItem) {
       this.toast.error('غير مصرح لك بحذف هذه السلعة');
       return;
     }
 
-    if (confirm('هل أنت متأكد من رغبتك في حذف هذه السلعة نهائياً؟')) {
+    const message = this.isAdmin && !this.isOwner 
+      ? 'هل أنت متأكد من رغبتك كـ مسؤول (Admin) في حذف هذه السلعة نهائياً؟'
+      : 'هل أنت متأكد من رغبتك في حذف هذه السلعة نهائياً؟';
+
+    if (confirm(message)) {
       this.itemService.deleteItem(this.item._id).subscribe({
         next: () => {
           this.toast.success('تم حذف السلعة بنجاح');

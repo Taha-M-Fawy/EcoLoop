@@ -1,65 +1,97 @@
-<div class="min-h-screen bg-slate-50 text-slate-800" dir="rtl">
+<div class="min-h-screen bg-[#fafcfb] text-slate-800" dir="rtl">
 
-  <!-- 1. Hero Section -->
-  <section class="relative overflow-hidden bg-gradient-to-b from-[#e8f5f0] via-[#f1f9f6] to-slate-50 py-12 lg:py-20 px-4 sm:px-6 border-b border-slate-200/70">
-    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+  <!-- 1. Hero Section (ألوان كرييتف مع خلفية متدرجة وتأثيرات بصرية) -->
+  <section class="relative overflow-hidden bg-gradient-to-b from-emerald-50/70 via-teal-50/30 to-[#fafcfb] py-16 lg:py-24 px-4 sm:px-6 border-b border-emerald-100/60">
+    
+    <!-- Decorative Blurs خلفية جمالية -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-emerald-300/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-1/2 -left-24 w-80 h-80 bg-teal-300/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center relative z-10">
       
       <!-- العمود الأيمن: المحتوى النصي والإجراءات -->
       <div class="lg:col-span-6 space-y-6 text-right">
         
-        <div class="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-white/90 px-4 py-1.5 text-xs font-bold text-emerald-800 shadow-xs">
-          <span>تبادل موثوق للمجتمعات المحلية</span>
+        <!-- البادج مع أيقونة الـ Loop SVG الحديثة -->
+        <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-white/95 px-4 py-1.5 text-xs font-extrabold text-emerald-800 shadow-sm backdrop-blur-xs">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600 animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>منصة التبادل وإعادة التدوير المجتمعي</span>
         </div>
 
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight sm:leading-tight">
-          امنح ما تستطيع، <br />
-          واعثر على ما تحتاجه
+        <h1 class="text-3xl sm:text-5xl font-black text-slate-900 leading-[1.2] sm:leading-[1.2] tracking-tight">
+          شارك ما لا تحتاجه، <br />
+          <span class="bg-gradient-to-l from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+            وامنح الأشياء فرصة ثانية
+          </span>
         </h1>
 
         <p class="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
-          حافظ على تداول الأشياء المفيدة بين جيران موثوقين. اكتشف احتياجاتك، وقدم ما لم تعد تحتاجه، وتبادل بأمان مع تأكيد التسليم المجتمعي.
+          شبكة تفاعلية ذكية للتبادل والتبرع بين أفراد المجتمع المحلي. وفّر نفقاتك، ساهم في تقليل الهدر، واصنع أثراً بيئياً مستداماً بكل سهولة وأمان.
         </p>
 
-        <!-- أزرار الإجراءات الأساسية -->
+        <!-- أزرار الإجراءات الأساسية بأيقونات أنيقة -->
         <div class="flex flex-wrap items-center gap-3 pt-2">
           <a 
             routerLink="/items" 
-            class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 px-6 py-3.5 text-sm font-bold text-white shadow-sm hover:shadow transition active:scale-95 cursor-pointer"
+            class="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 transition transform hover:-translate-y-0.5 active:scale-95 cursor-pointer"
           >
-            <span>استكشف السوق</span>
-            <span class="text-base">&larr;</span>
+            <span>استكشف المعروضات</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
           </a>
 
           <a 
             routerLink="/items/new" 
-            class="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-emerald-600/40 bg-white hover:bg-emerald-50/50 px-6 py-3.5 text-sm font-bold text-emerald-800 transition active:scale-95 cursor-pointer"
+            class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300/80 bg-white/90 hover:bg-emerald-50/60 hover:border-emerald-500 px-6 py-3.5 text-sm font-bold text-slate-800 transition active:scale-95 cursor-pointer shadow-xs"
           >
-            <span>اطلب احتياجاً عاجلاً</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span>أضف غرضاً جديداً</span>
           </a>
         </div>
 
-        <!-- إحصائيات سريعة -->
-        <div class="pt-4 flex items-center gap-8 border-t border-slate-200/80">
-          <div>
-            <p class="text-2xl font-black text-slate-900">+12,480</p>
-            <p class="text-xs font-bold text-slate-500 mt-0.5">تبادلات مجتمعية</p>
+        <!-- إحصائيات سريعة مع أيقونات SVG -->
+        <div class="pt-6 grid grid-cols-2 gap-4 border-t border-slate-200/80 max-w-md">
+          <div class="flex items-center gap-3 p-2.5 rounded-2xl bg-white/60 border border-slate-100 shadow-xs">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100/70 text-emerald-700 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-xl font-black text-slate-900">+12,480</p>
+              <p class="text-[11px] font-bold text-slate-500">عملية تبادل ناجحة</p>
+            </div>
           </div>
-          <div>
-            <p class="text-2xl font-black text-emerald-700">3,219</p>
-            <p class="text-xs font-bold text-slate-500 mt-0.5">أشخاص تم دعمهم</p>
+
+          <div class="flex items-center gap-3 p-2.5 rounded-2xl bg-white/60 border border-slate-100 shadow-xs">
+            <div class="w-10 h-10 rounded-xl bg-teal-100/70 text-teal-700 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-xl font-black text-emerald-700">3,219</p>
+              <p class="text-[11px] font-bold text-slate-500">عضو نشط بالمنصة</p>
+            </div>
           </div>
         </div>
 
       </div>
 
-      <!-- العمود الأيسر: الصورة -->
+      <!-- العمود الأيسر: الصورة / العرض البصري -->
       <div class="lg:col-span-6 flex justify-center">
-        <div class="relative w-full max-w-md lg:max-w-lg">
-          <div class="overflow-hidden rounded-3xl border-4 border-white bg-white shadow-xl aspect-4/3 flex items-center justify-center">
+        <div class="relative w-full max-w-md lg:max-w-lg group">
+          <div class="absolute -inset-2 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-3xl blur-lg opacity-25 group-hover:opacity-40 transition duration-500"></div>
+          <div class="relative overflow-hidden rounded-3xl border-4 border-white bg-white shadow-2xl aspect-4/3 flex items-center justify-center">
             <img 
               src="ecoloop-hero.png" 
               alt="تبادل وتعاون مجتمعي عبر إيكولوب" 
-              class="w-full h-full object-cover"
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           </div>
         </div>
@@ -68,36 +100,44 @@
     </div>
   </section>
 
-  <!-- 2. Dynamic Categories Grid (SVG Icons نظيفة) -->
-  <section class="max-w-6xl mx-auto px-4 py-14">
-    <div class="flex items-center justify-between mb-8">
+  <!-- 2. Dynamic Categories Grid -->
+  <section class="max-w-6xl mx-auto px-4 py-16">
+    <div class="flex items-center justify-between mb-10">
       <div>
-        <span class="text-xs font-bold uppercase text-emerald-600 tracking-wider">تصفح حسب الغرض</span>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-1">اعثر على غرضك المفيد التالي</h2>
+        <div class="inline-flex items-center gap-1.5 text-xs font-black uppercase text-emerald-600 tracking-wider">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>تصفح حسب التصنيف</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">ما الذي تبحث عنه اليوم؟</h2>
       </div>
-      <a routerLink="/items" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
-        عرض كل السلع &larr;
+      <a 
+        routerLink="/items" 
+        class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100/70 px-3.5 py-2 rounded-xl transition"
+      >
+        <span>عرض كل السلع</span>
+        <span>&larr;</span>
       </a>
     </div>
 
     <!-- حالة التحميل -->
-    <div *ngIf="loadingCategories" class="py-8 text-center text-xs font-bold text-slate-400">
-      جاري تحميل التصنيفات...
+    <div *ngIf="loadingCategories" class="py-12 flex justify-center items-center gap-2 text-xs font-bold text-slate-400">
+      <div class="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      <span>جاري تحميل الأقسام والتصنيفات...</span>
     </div>
 
     <!-- شبكة الأقسام -->
-    <div *ngIf="!loadingCategories && categories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div *ngIf="!loadingCategories && categories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
       <div 
         *ngFor="let cat of categories"
         [routerLink]="['/items']" 
         [queryParams]="{ categoryId: cat._id }"
-        class="group p-5 bg-white border border-slate-200/80 rounded-2xl hover:border-emerald-500 hover:shadow-md transition cursor-pointer flex flex-col justify-between"
+        class="group relative p-5 bg-white border border-slate-200/80 rounded-2xl hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 -translate-y-0 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
       >
-        <div class="space-y-3">
-          <!-- أيقونة الـ SVG الهندسية المخصصة -->
+        <div class="space-y-4">
+          <!-- حاوية أيقونة القسم بخلفية متناسقة وحركة أنيقة -->
           <div 
             [ngClass]="getCategoryMeta(cat.name).bgClass"
-            class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
+            class="w-13 h-13 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-xs"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -111,39 +151,53 @@
             </svg>
           </div>
 
-          <h3 class="text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition">
-            {{ cat.name }}
-          </h3>
-          <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-            استعرض كافة المعروضات والطلبات المتاحة في قسم {{ cat.name }}.
-          </p>
+          <div>
+            <h3 class="text-base font-extrabold text-slate-800 group-hover:text-emerald-600 transition-colors">
+              {{ cat.name }}
+            </h3>
+            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed mt-1">
+              استكشف كافة السلع والطلبات المعروضة ضمن تصنيف {{ cat.name }}.
+            </p>
+          </div>
         </div>
 
-        <span class="text-[11px] font-bold text-emerald-600 mt-4 flex items-center gap-1">
-          <span>تصفح المعروضات</span>
-          <span class="transition-transform group-hover:-translate-x-1">&larr;</span>
-        </span>
+        <div class="pt-4 mt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-emerald-600">
+          <span>استعرض المعروضات</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 transition-transform duration-300 group-hover:-translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- 3. Dynamic Latest Items -->
-  <section class="bg-slate-100/70 border-t border-slate-200 py-14">
+  <section class="bg-slate-50/80 border-t border-slate-200/80 py-16">
     <div class="max-w-6xl mx-auto px-4">
       
-      <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center justify-between mb-10">
         <div>
-          <h2 class="text-xl sm:text-2xl font-black text-slate-900">أحدث المعروضات</h2>
-          <p class="text-xs text-slate-500 mt-1">سلع ومستلزمات أضيفت مؤخراً في مجتمعك</p>
+          <div class="inline-flex items-center gap-1.5 text-xs font-black uppercase text-teal-600 tracking-wider">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>أحدث الإضافات</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">معروضات أضيفت حديثاً</h2>
         </div>
-        <a routerLink="/items" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
-          مشاهدة الكل
+
+        <a 
+          routerLink="/items" 
+          class="rounded-xl border border-slate-300/80 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition-all cursor-pointer shadow-2xs"
+        >
+          مشاهدة الكل &larr;
         </a>
       </div>
 
       <!-- حالة التحميل -->
-      <div *ngIf="loadingLatest" class="py-12 text-center text-slate-400 text-xs font-bold">
-        جاري تحميل أحدث السلع...
+      <div *ngIf="loadingLatest" class="py-16 flex flex-col justify-center items-center gap-3 text-slate-400 text-xs font-bold">
+        <div class="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+        <span>جاري جلب أحدث السلع...</span>
       </div>
 
       <!-- كروت السلع -->
@@ -155,10 +209,20 @@
       </div>
 
       <!-- في حالة عدم وجود سلع -->
-      <div *ngIf="!loadingLatest && latestItems.length === 0" class="py-12 text-center bg-white rounded-2xl border border-slate-200 p-8">
-        <p class="text-slate-500 text-sm font-medium">لا توجد معروضات حالياً، كن أول من يشارك!</p>
-        <a routerLink="/items/new" class="inline-block mt-3 px-5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold cursor-pointer">
-          أضف سلعة الآن
+      <div *ngIf="!loadingLatest && latestItems.length === 0" class="py-14 text-center bg-white rounded-3xl border border-dashed border-slate-300 p-8 max-w-md mx-auto">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+          </svg>
+        </div>
+        <p class="text-slate-700 text-sm font-bold">لا توجد معروضات حالياً</p>
+        <p class="text-slate-400 text-xs mt-1">كن المبادر الأول في مجتمعك وأضف غرضاً لم تعد تستخدمه.</p>
+        <a 
+          routerLink="/items/new" 
+          class="inline-flex items-center gap-1.5 mt-4 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition cursor-pointer"
+        >
+          <span>أضف أول سلعة</span>
+          <span>&larr;</span>
         </a>
       </div>
 

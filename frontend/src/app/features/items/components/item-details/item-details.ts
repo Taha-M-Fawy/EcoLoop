@@ -143,12 +143,30 @@ export class ItemDetailsComponent implements OnInit {
       return;
     }
 
-    if (this.item.type === 'exchange') {
-      this.toast.success('تم إرسال إشعار لصاحب السلعة بطلب المقايضة والتواصل');
-    } else if (this.item.type === 'donation') {
-      this.toast.success('تم إرسال طلب استلام التبرع بنجاح');
-    } else {
-      this.toast.success('تم فتح قناة التواصل مع البائع');
+    // جلب بيانات ورقم هاتف صاحب السلعة
+    const owner = this.item?.ownerId;
+    let phone = owner?.phone || owner?.whatsapp;
+
+    if (!phone) {
+      this.toast.error('رقم هاتف صاحب السلعة غير متوفر للتواصل');
+      return;
     }
+
+    // تنظيف الرقم من أي مسافات أو رموز (+, -)
+    phone = phone.toString().replace(/[^0-9]/g, '');
+
+    // تحويل الأرقام المصرية (010, 011, 012, 015) إلى الصيغة الدولية 201...
+    if (phone.startsWith('01')) {
+      phone = '2' + phone;
+    }
+
+    // تجهيز رسالة مسبقة باسم السلعة ورابطها
+    const itemTitle = this.item?.title || 'السلعة';
+    const itemUrl = window.location.href;
+    const message = `السلام عليكم، أرغب في طلب استلام: "${itemTitle}" المعروضة على منصة EcoLoop.\nرابط السلعة: ${itemUrl}`;
+
+    // فتح المحادثة على واتساب في تبويب جديد
+    const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   }
 }

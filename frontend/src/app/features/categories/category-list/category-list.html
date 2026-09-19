@@ -1,0 +1,122 @@
+<div class="category-page">
+
+  <div class="page-header">
+
+    <div>
+      <span class="page-label">ECLOOP</span>
+      <h1>التصنيفات</h1>
+      <p>استكشف وأدر تصنيفات المنتجات</p>
+    </div>
+
+    <div class="header-actions">
+
+      <div class="category-count">
+        <span>{{ categories.length }}</span>
+        <small>تصنيف</small>
+      </div>
+
+      <button class="add-btn" (click)="openForm()">
+        + إضافة تصنيف
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="form-box" *ngIf="showForm">
+
+    <h2>
+      {{ editingCategory ? 'تعديل التصنيف' : 'إضافة تصنيف جديد' }}
+    </h2>
+
+    <input
+      type="text"
+      placeholder="اسم التصنيف"
+      [(ngModel)]="newCategory.name"
+    >
+
+    <textarea
+      placeholder="وصف التصنيف"
+      [(ngModel)]="newCategory.description"
+    ></textarea>
+
+    <div class="form-buttons">
+
+      <button class="save-btn" (click)="saveCategory()">
+        {{ editingCategory ? 'حفظ التعديل' : 'إضافة' }}
+      </button>
+
+      <button class="cancel-btn" (click)="closeForm()">
+        إلغاء
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="categories">
+
+    <div
+      class="category-card"
+      *ngFor="let category of categories"
+    >
+
+      <div class="category-icon">
+
+        <span *ngIf="category.name.includes('أدوية')">💊</span>
+
+        <span *ngIf="category.name.includes('كتب')">📚</span>
+
+        <span *ngIf="category.name.includes('أجهزة')">💻</span>
+
+        <span *ngIf="category.name.includes('ملابس')">👕</span>
+
+        <span *ngIf="category.name.includes('مدرسية')">✏️</span>
+
+        <span
+          *ngIf="
+            !category.name.includes('أدوية') &&
+            !category.name.includes('كتب') &&
+            !category.name.includes('أجهزة') &&
+            !category.name.includes('ملابس') &&
+            !category.name.includes('مدرسية')
+          "
+        >
+          📦
+        </span>
+
+      </div>
+
+      <div class="category-info">
+
+        <h2>{{ category.name }}</h2>
+
+        <p>
+          {{ category.description || 'لا يوجد وصف' }}
+        </p>
+
+      </div>
+
+      <div class="card-buttons">
+
+        <button
+          class="edit-btn"
+          (click)="editCategory(category)"
+        >
+          تعديل
+        </button>
+
+        <button
+          class="delete-btn"
+          (click)="deleteCategory(category._id)"
+        >
+          حذف
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

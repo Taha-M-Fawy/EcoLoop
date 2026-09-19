@@ -115,7 +115,72 @@ h1 {
   color: #a0a8a2;
 }
 
-button {
+.hint {
+  display: block;
+  margin-top: 6px;
+  color: #89938c;
+  font-size: 12px;
+}
+
+.error-message {
+  display: block;
+  margin-top: 6px;
+  color: #d93025;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.input-error {
+  border-color: #d93025 !important;
+  background: #fff8f8 !important;
+}
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  padding-left: 50px !important;
+}
+
+.eye-btn {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  padding: 5px;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: #78817b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.eye-btn:hover {
+  background: transparent;
+  color: #16843f;
+  transform: translateY(-50%);
+  box-shadow: none;
+}
+
+.eye-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+button[type="submit"] {
   width: 100%;
   padding: 16px;
   margin-top: 7px;
@@ -129,7 +194,7 @@ button {
   transition: 0.25s;
 }
 
-button:hover {
+button[type="submit"]:hover {
   background: #16843f;
   transform: translateY(-2px);
   box-shadow: 0 12px 25px rgba(22, 132, 63, 0.22);

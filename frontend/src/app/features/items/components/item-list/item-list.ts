@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ItemService } from '../../services/item';
 import { Item, ItemFilters, CategorySummary } from '../../models/item.model';
 import { ItemCardComponent } from '../item-card/item-card';
@@ -13,7 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-item-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ItemCardComponent],
+  imports: [CommonModule, FormsModule, ItemCardComponent],
   templateUrl: './item-list.html',
   styleUrl: './item-list.css',
 })
@@ -29,7 +29,6 @@ export class ItemListComponent implements OnInit {
   categories: CategorySummary[] = [];
   loading = false;
 
-  // إعدادات الـ Pagination
   currentPage = 1;
   totalPages = 1;
   totalItems = 0;
@@ -54,7 +53,6 @@ export class ItemListComponent implements OnInit {
     this.loadLocations();
     this.loadCategories();
 
-    // الاستماع لمعاملات الرابط (بما فيها معروضاتي والبحث القادم من النافبار)
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
@@ -71,7 +69,6 @@ export class ItemListComponent implements OnInit {
       });
   }
 
-  // دالة البحث مع Debounce لمنع تكرار الريكويستات أثناء الكتابة
   onSearchInput(value: string): void {
     this.filters.search = value;
 
@@ -86,7 +83,10 @@ export class ItemListComponent implements OnInit {
 
   private updateAvailableCities(): void {
     if (this.filters.governorate && this.locationsData.length > 0) {
-      const selected = this.locationsData.find((loc) => loc.governorate === this.filters.governorate);
+      const selected = this.locationsData.find(
+        (loc) => loc.governorate === this.filters.governorate
+      );
+
       this.availableCities = selected ? selected.cities : [];
     } else if (!this.filters.governorate) {
       this.availableCities = [];
@@ -100,7 +100,10 @@ export class ItemListComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.locationsData = Array.isArray(res?.data) ? res.data : [];
-          this.governorates = this.locationsData.map((loc) => loc.governorate);
+          this.governorates = this.locationsData.map(
+            (loc) => loc.governorate
+          );
+
           this.updateAvailableCities();
           this.cdr.detectChanges();
         },
@@ -114,7 +117,12 @@ export class ItemListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          this.categories = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+          this.categories = Array.isArray(res?.data)
+            ? res.data
+            : Array.isArray(res)
+              ? res
+              : [];
+
           this.cdr.detectChanges();
         },
         error: (err) => console.error('Failed to load categories:', err),
@@ -133,10 +141,18 @@ export class ItemListComponent implements OnInit {
   }
 
   goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+    if (
+      page >= 1 &&
+      page <= this.totalPages &&
+      page !== this.currentPage
+    ) {
       this.currentPage = page;
       this.syncUrlParams();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
     }
   }
 
@@ -146,21 +162,27 @@ export class ItemListComponent implements OnInit {
     if (this.filters.owner) {
       queryParams['owner'] = this.filters.owner;
     }
+
     if (this.filters.categoryId) {
       queryParams['categoryId'] = this.filters.categoryId;
     }
+
     if (this.filters.type && this.filters.type !== 'all') {
       queryParams['type'] = this.filters.type;
     }
+
     if (this.filters.governorate) {
       queryParams['governorate'] = this.filters.governorate;
     }
+
     if (this.filters.city) {
       queryParams['city'] = this.filters.city;
     }
+
     if (this.filters.search?.trim()) {
       queryParams['search'] = this.filters.search.trim();
     }
+
     if (this.currentPage > 1) {
       queryParams['page'] = this.currentPage;
     }
@@ -173,7 +195,10 @@ export class ItemListComponent implements OnInit {
   }
 
   get pagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    return Array.from(
+      { length: this.totalPages },
+      (_, i) => i + 1
+    );
   }
 
   loadItems(): void {
@@ -184,19 +209,20 @@ export class ItemListComponent implements OnInit {
       limit: this.pageSize,
     };
 
-    // فلترة معروضاتي
     if (this.filters.owner) {
       queryParams['owner'] = this.filters.owner;
+
       const userStr = localStorage.getItem('user');
+
       if (userStr) {
         try {
           const user = JSON.parse(userStr);
           const userId = user._id || user.id;
+
           if (userId) {
             queryParams['ownerId'] = userId;
           }
         } catch {
-          // تجاهل خطأ التحويل
         }
       }
     }
@@ -234,6 +260,7 @@ export class ItemListComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           const rawItems = response?.data;
+
           if (Array.isArray(rawItems)) {
             this.items = rawItems;
           } else if (Array.isArray(response)) {
@@ -243,17 +270,27 @@ export class ItemListComponent implements OnInit {
           }
 
           const paginationData = response?.pagination;
+
           if (paginationData) {
-            this.currentPage = Number(paginationData.page) || this.currentPage;
-            this.totalPages = Number(paginationData.pages) || 1;
-            this.totalItems = Number(paginationData.total) || this.items.length;
+            this.currentPage =
+              Number(paginationData.page) || this.currentPage;
+
+            this.totalPages =
+              Number(paginationData.pages) || 1;
+
+            this.totalItems =
+              Number(paginationData.total) || this.items.length;
           } else {
             this.totalPages = 1;
             this.totalItems = this.items.length;
           }
         },
         error: (err) => {
-          console.error('فشل جلب المعروضات من السيرفر:', err);
+          console.error(
+            'فشل جلب المعروضات من السيرفر:',
+            err
+          );
+
           this.items = [];
           this.totalPages = 1;
           this.totalItems = 0;

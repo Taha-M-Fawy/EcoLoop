@@ -10,22 +10,22 @@ const categoryRoutes = require('./routes/category.route');
 const reviewsRoutes = require('./routes/reviews.routes');
 const notificationsRoutes = require('./routes/notifications.routes');
 const locationRoutes = require('./routes/location.routes');
-const requestRoutes = require('./routes/requests.routes'); // تم الإبقاء على سطر واحد فقط
+const requestRoutes = require('./routes/requests.routes');
 
 // Middlewares Imports
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
-//*--- GLOBAL MIDDLEWARES ---*//
-app.use(
-  cors({
-    origin: 'http://localhost:4200',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
-  })
-);
+//*--- APP SETTINGS & GLOBAL MIDDLEWARES ---*//
+app.set('etag', false);
+
+app.use(cors({
+  origin: 'http://localhost:4200',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
+}));
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -41,7 +41,6 @@ app.use('/api/requests', requestRoutes);
 
 //*--- ERROR HANDLING MIDDLEWARE ---*//
 app.use(errorHandler);
-app.set('etag', false);
 
 //*--- CONNECT DB & START SERVER ---*//
 const serverPort = PORT || 5000;

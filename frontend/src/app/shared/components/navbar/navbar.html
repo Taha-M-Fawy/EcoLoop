@@ -4,6 +4,7 @@
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="flex items-center justify-between h-16 gap-3 sm:gap-6">
+
       <!-- 1. اللوجو والروابط الأساسية -->
       <div class="flex items-center gap-6 shrink-0">
         <a
@@ -42,6 +43,7 @@
           >
             الرئيسية
           </a>
+
           <a
             routerLink="/items"
             routerLinkActive="text-emerald-600 font-black bg-emerald-50/60"
@@ -84,6 +86,7 @@
                 <span>📦</span>
                 <span>كل التصنيفات</span>
               </a>
+
               <a
                 *ngFor="let cat of categories()"
                 [routerLink]="['/items']"
@@ -98,7 +101,7 @@
         </div>
       </div>
 
-      <!-- 2. شريط البحث الموحد (ثابت وظاهر دائماً) -->
+      <!-- 2. شريط البحث الموحد (ثابت وظاهر دائماً على الديسكتوب) -->
       <div class="hidden lg:flex flex-1 max-w-md mx-2">
         <div class="relative w-full group">
           <input
@@ -157,6 +160,39 @@
 
       <!-- 3. الأزرار والحساب -->
       <div class="flex items-center gap-2.5">
+
+        <!-- زر الإشعارات -->
+        <a
+          *ngIf="isLoggedIn()"
+          routerLink="/notifications"
+          routerLinkActive="bg-emerald-50 text-emerald-700 border-emerald-300"
+          class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-emerald-600 transition shadow-xs cursor-pointer"
+          title="الإشعارات"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+            />
+          </svg>
+
+          <!-- عدد الإشعارات غير المقروءة -->
+          <span
+            *ngIf="unreadNotificationsCount() > 0"
+            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center border-2 border-white"
+          >
+            {{ unreadNotificationsCount() > 99 ? '99+' : unreadNotificationsCount() }}
+          </span>
+        </a>
+
         <!-- زر الطلبات المباشر للمسجلين -->
         <a
           *ngIf="isLoggedIn()"
@@ -213,9 +249,11 @@
               >
                 {{ userInitial() }}
               </div>
+
               <span class="hidden xl:inline text-xs font-bold text-slate-700 max-w-[90px] truncate">
                 {{ userName() }}
               </span>
+
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="w-3 h-3 text-slate-400"
@@ -233,13 +271,20 @@
               (mouseleave)="isUserMenuOpen.set(false)"
               class="absolute left-0 mt-2 w-48 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50"
             >
+              <!-- بيانات المستخدم -->
               <div class="px-4 py-2 border-b border-slate-100">
-                <p class="text-xs font-black text-slate-900 truncate">{{ userName() }}</p>
-                <p *ngIf="currentUser()?.email" class="text-[10px] text-slate-400 truncate">
+                <p class="text-xs font-black text-slate-900 truncate">
+                  {{ userName() }}
+                </p>
+                <p
+                  *ngIf="currentUser()?.email"
+                  class="text-[10px] text-slate-400 truncate"
+                >
                   {{ currentUser()?.email }}
                 </p>
               </div>
 
+              <!-- الملف الشخصي -->
               <a
                 routerLink="/profile"
                 (click)="isUserMenuOpen.set(false)"
@@ -248,6 +293,8 @@
                 <span>👤</span>
                 <span>الملف الشخصي</span>
               </a>
+
+              <!-- معروضاتي -->
               <a
                 routerLink="/items"
                 [queryParams]="{ owner: 'me' }"
@@ -257,6 +304,8 @@
                 <span>📦</span>
                 <span>معروضاتي</span>
               </a>
+
+              <!-- الطلبات والمعاملات -->
               <a
                 routerLink="/requests"
                 (click)="isUserMenuOpen.set(false)"
@@ -266,7 +315,19 @@
                 <span>الطلبات والمعاملات</span>
               </a>
 
+              <!-- التقييمات -->
+              <a
+                routerLink="/reviews"
+                (click)="isUserMenuOpen.set(false)"
+                class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600"
+              >
+                <span>⭐</span>
+                <span>التقييمات</span>
+              </a>
+
               <div class="border-t border-slate-100 my-1"></div>
+
+              <!-- تسجيل الخروج -->
               <button
                 type="button"
                 (click)="logout()"
@@ -288,6 +349,7 @@
             >
               دخول
             </a>
+
             <a
               routerLink="/auth/register"
               class="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 rounded-xl hidden sm:inline"
@@ -299,6 +361,7 @@
 
         <!-- زر قائمة الموبايل -->
         <button
+          type="button"
           (click)="toggleMobileMenu()"
           class="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100"
           aria-label="القائمة"
@@ -314,6 +377,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
+
       </div>
     </div>
 
@@ -331,6 +395,7 @@
           placeholder="ابحث عن أجهزة، كتب، أدوية..."
           class="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-2 pr-9 pl-9 text-xs outline-none focus:border-emerald-500 focus:bg-white"
         />
+
         <span
           class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 select-none pointer-events-none flex items-center justify-center"
         >
@@ -349,6 +414,7 @@
             />
           </svg>
         </span>
+
         <button
           *ngIf="searchQuery"
           type="button"
@@ -371,6 +437,7 @@
         </button>
       </div>
     </div>
+
   </div>
 
   <!-- قائمة الموبايل المنسدلة -->
@@ -382,32 +449,50 @@
       (click)="toggleMobileMenu()"
       routerLink="/"
       class="block text-xs font-bold text-slate-800 hover:text-emerald-600 py-1"
-      >الرئيسية</a
     >
+      الرئيسية
+    </a>
+
     <a
       (click)="toggleMobileMenu()"
       routerLink="/items"
       class="block text-xs font-bold text-slate-800 hover:text-emerald-600 py-1"
-      >جميع المعروضات</a
     >
+      جميع المعروضات
+    </a>
+
     <a
       *ngIf="isLoggedIn()"
       (click)="toggleMobileMenu()"
       routerLink="/requests"
       class="block text-xs font-bold text-emerald-700 py-1"
-      >🔄 الطلبات والمعاملات</a
     >
+      🔄 الطلبات والمعاملات
+    </a>
+
+    <!-- التقييمات للموبايل -->
+    <a
+      *ngIf="isLoggedIn()"
+      (click)="toggleMobileMenu()"
+      routerLink="/reviews"
+      class="block text-xs font-bold text-slate-800 hover:text-emerald-600 py-1"
+    >
+      ⭐ التقييمات
+    </a>
+
     <a
       *ngIf="isLoggedIn()"
       (click)="toggleMobileMenu()"
       routerLink="/profile"
       class="block text-xs font-bold text-slate-800 hover:text-emerald-600 py-1"
-      >الملف الشخصي</a
     >
+      الملف الشخصي
+    </a>
+
     <button
       *ngIf="isLoggedIn()"
       (click)="logout()"
-      class="block text-xs font-bold text-rose-600 text-right w-full py-1"
+      class="block text-xs font-bold text-rose-600 text-right w-full py-1 cursor-pointer"
     >
       تسجيل الخروج
     </button>

@@ -1,0 +1,139 @@
+<!-- <div class="max-w-md mx-auto my-8 p-6 bg-white rounded-xl shadow-sm">
+  <h2 class="text-2xl font-bold text-green-600 mb-4">إضافة تقييم</h2>
+
+  <form (ngSubmit)="submitReview()" class="flex flex-col gap-3">
+    <label class="text-sm text-gray-500 -mb-1">Transaction ID</label>
+    <input
+      type="text"
+      [(ngModel)]="transactionId"
+      name="transactionId"
+      required
+      class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+    />
+
+    <label class="text-sm text-gray-500 -mb-1">Reviewer ID</label>
+    <input
+      type="text"
+      [(ngModel)]="reviewerId"
+      name="reviewerId"
+      required
+      class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+    />
+
+    <label class="text-sm text-gray-500 -mb-1">Reviewed User ID</label>
+    <input
+      type="text"
+      [(ngModel)]="reviewedUserId"
+      name="reviewedUserId"
+      required
+      class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+    />
+
+    <label class="text-sm text-gray-500 -mb-1">Rating (1-5)</label>
+    <input
+      type="number"
+      [(ngModel)]="rating"
+      name="rating"
+      min="1"
+      max="5"
+      required
+      class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+    />
+
+    <label class="text-sm text-gray-500 -mb-1">Comment</label>
+    <textarea
+      [(ngModel)]="comment"
+      name="comment"
+      class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+    ></textarea>
+
+    <button
+      type="submit"
+      class="bg-green-600 text-white rounded-lg py-2.5 font-bold mt-2 hover:bg-green-700 transition"
+    >
+      إرسال التقييم
+    </button>
+  </form>
+
+  @if (successMessage) {
+    <p class="text-green-600 mt-3">{{ successMessage }}</p>
+  }
+  @if (errorMessage) {
+    <p class="text-red-600 mt-3">{{ errorMessage }}</p>
+  }
+</div> -->
+
+<div class="review-page" dir="rtl">
+
+  <div class="review-card">
+
+    <h1>قيّم تجربتك</h1>
+
+    <p class="subtitle">
+      شاركنا رأيك في تجربة التبادل
+    </p>
+
+    <div class="rating-section">
+
+      <p>التقييم</p>
+
+      <div class="stars">
+
+        @for (star of [1, 2, 3, 4, 5]; track star) {
+
+        <button
+          type="button"
+          class="star"
+          [class.selected]="star <= rating"
+          (click)="selectRating(star)">
+          ★
+        </button>
+
+        }
+
+      </div>
+
+      <span class="rating-text">
+        {{ rating }} من 5
+      </span>
+
+    </div>
+
+    <div class="comment-section">
+
+      <label for="comment">
+        تعليقك
+      </label>
+
+      <textarea
+        id="comment"
+        [(ngModel)]="comment"
+        name="comment"
+        rows="5"
+        placeholder="اكتب رأيك في التجربة...">
+      </textarea>
+
+    </div>
+
+    <button
+      type="button"
+      class="submit-button"
+      (click)="submitReview()">
+      إرسال التقييم
+    </button>
+
+    @if (successMessage) {
+    <div class="success-message">
+      {{ successMessage }}
+    </div>
+    }
+
+    @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+    }
+
+  </div>
+
+</div>

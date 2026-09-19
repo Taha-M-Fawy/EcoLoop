@@ -4,8 +4,8 @@ const createReviewService = (data) => {
   return Review.create(data);
 };
 
-const getReviewsService = () => {
-  return Review.find();
+const getReviewsService = (userId) => {
+    return Review.find({ reviewedUserId: userId });
 };
 
 const getReviewByIdService = (id) => {

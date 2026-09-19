@@ -18,7 +18,7 @@ export class RequestList implements OnInit {
   loading = signal<boolean>(true);
   error = signal<string>('');
 
-  // قواميس ترجمة المواقع فقط (إذا كانت تأتي بالإنجليزية من الـ Backend)
+  // قواميس ترجمة المواقع
   private governoratesMap: Record<string, string> = {
     Alexandria: 'الإسكندرية',
     Cairo: 'القاهرة',
@@ -48,14 +48,42 @@ export class RequestList implements OnInit {
 
     this.requestService.getRequests().subscribe({
       next: (res: any) => {
-        // دعم استخراج المصفوفة سواء رجعت كـ Array مباشرة أو داخل { data: [...] }
-        const data = Array.isArray(res) ? res : (res?.data?.requests || res?.data || []);
+        console.log('✅ استجابة سيرفر الطلبات:', res);
+
+        // استخراج المصفوفة مهما كان شكل التغليف من الباك إند
+        let data: Request[] = [];
+        if (Array.isArray(res)) {
+          data = res;
+        } else if (Array.isArray(res?.data)) {
+          data = res.data;
+        } else if (Array.isArray(res?.data?.requests)) {
+          data = res.data.requests;
+        } else if (Array.isArray(res?.requests)) {
+          data = res.requests;
+        }
+
         this.requests.set(data);
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Request fetch error:', err);
-        this.error.set('تعذر تحميل الطلبات، يرجى المحاولة لاحقاً.');
+        console.error('❌ تفاصيل خطأ جلب الطلبات:', {
+          status: err.status,
+          statusText: err.statusText,
+          url: err.url,
+          message: err.message,
+          errorResponse: err.error
+        });
+
+        if (err.status === 401) {
+          this.error.set('يرجى تسجيل الدخول أولاً لعرض الطلبات.');
+        } else if (err.status === 404) {
+          this.error.set('مسار خدمة الطلبات غير متوفر على السيرفر (404).');
+        } else if (err.status === 500) {
+          this.error.set('حدث خطأ داخلي في الخادم أثناء جلب الطلبات (500).');
+        } else {
+          this.error.set('تعذر تحميل الطلبات، يرجى المحاولة لاحقاً.');
+        }
+
         this.loading.set(false);
       }
     });
@@ -81,8 +109,8 @@ export class RequestList implements OnInit {
         this.requests.update(items => items.filter(r => (r as any)._id !== id));
       },
       error: (err) => {
-        console.error('Delete request error:', err);
-        this.error.set('حدث خطأ أثناء حذف الطلب.');
+        console.error('❌ خطأ حذف الطلب:', err);
+        alert('حدث خطأ أثناء حذف الطلب، يرجى المحاولة لاحقاً.');
       }
     });
   }

@@ -4,23 +4,38 @@ const createNotificationService = (data) => {
     return Notification.create(data);
 };
 
-const getNotificationsService = () => {
-    return Notification.find();
+const getNotificationsService = (userId) => {
+
+    return Notification.find({ userId });
+
 };
 
-const getNotificationByIdService = (id) => {
-    return Notification.findById(id);
-};
-
-const updateNotificationService = (id, data) => {
-    return Notification.findByIdAndUpdate(id, data, {
-    new: true,
-    runValidators: true
+const getNotificationByIdService = (id, userId) => {
+    return Notification.findOne({
+        _id: id,
+        userId: userId
     });
 };
 
-const deleteNotificationService = (id) => {
-  return Notification.findByIdAndDelete(id);
+const updateNotificationService = (id, userId, data) => {
+    return Notification.findOneAndUpdate(
+        {
+            _id: id,
+            userId: userId
+        },
+        data,
+        {
+            new: true,
+            runValidators: true
+        }
+    );
+};
+
+const deleteNotificationService = (id, userId) => {
+  return Notification.findOneAndDelete({
+    _id: id,
+    userId: userId
+  });
 };
 
 module.exports = {

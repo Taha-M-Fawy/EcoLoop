@@ -1,4 +1,5 @@
 const express = require("express");
+const { protect } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 const {
@@ -10,9 +11,9 @@ const {
 } = require("../controller/notifications.controller.js");
 
 router.post('/', createNotification)
-router.get('/', getNotifications)
-router.get('/:id', getNotificationById)
-router.put('/:id', updateNotification)
-router.delete('/:id', deleteNotification)
-
+//router.get('/:id', getNotificationById)
+router.get('/', protect, getNotifications)
+router.get('/:id', protect, getNotificationById)
+router.put('/:id', protect, updateNotification)
+router.delete('/:id', protect, deleteNotification)
 module.exports = router;

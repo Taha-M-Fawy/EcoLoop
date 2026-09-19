@@ -1,0 +1,237 @@
+<div class="reviews-page" dir="rtl">
+
+  <!-- Page Header -->
+  <div class="page-header">
+
+    <div>
+      <h1>التقييمات</h1>
+      <p>التقييمات التي حصلت عليها في مجتمع EcoLoop</p>
+    </div>
+
+    <a
+      routerLink="/reviews/add"
+      class="add-review-button">
+      + إضافة تقييم
+    </a>
+
+  </div>
+
+  @if (loading) {
+
+  <div class="loading">
+    جاري تحميل التقييمات...
+  </div>
+
+  }
+
+  @if (error) {
+
+  <div class="error">
+    {{ error }}
+  </div>
+
+  }
+
+  @if (reviews.length === 0 && !loading && !error) {
+
+  <div class="empty-state">
+
+    <h3>لا توجد تقييمات حتى الآن</h3>
+
+    <p>
+      لم تحصل على أي تقييمات حتى الآن.
+    </p>
+
+    <a
+      routerLink="/reviews/add"
+      class="empty-add-button">
+      + إضافة أول تقييم
+    </a>
+
+  </div>
+
+  }
+
+  @if (reviews.length > 0) {
+
+  <div class="reviews-container">
+
+    @for (review of reviews; track review._id) {
+
+    <div class="review-card">
+
+      <!-- Review Header -->
+      <div class="review-header">
+
+        <div class="user-info">
+
+          <div class="user-avatar">
+            مستخدم
+          </div>
+
+          <div>
+            <h3>مستخدم EcoLoop</h3>
+            <span>تقييم تجربة تبادل</span>
+          </div>
+
+        </div>
+
+        <!-- Normal Rating -->
+        @if (editingReviewId !== review._id) {
+
+        <div class="rating">
+
+          @for (star of [1, 2, 3, 4, 5]; track star) {
+
+          <span
+            class="star"
+            [class.active]="star <= review.rating">
+            ★
+          </span>
+
+          }
+
+        </div>
+
+        }
+
+      </div>
+
+      <!-- Edit Mode -->
+      @if (editingReviewId === review._id) {
+
+      <div class="edit-section">
+
+        <!-- Edit Rating -->
+        <div class="edit-rating">
+
+          <p>التقييم</p>
+
+          <div class="stars">
+
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+
+            <button
+              type="button"
+              class="edit-star"
+              [class.selected]="star <= editRating"
+              (click)="editRating = star">
+
+              ★
+
+            </button>
+
+            }
+
+          </div>
+
+          <span class="rating-text">
+            {{ editRating }} من 5
+          </span>
+
+        </div>
+
+        <!-- Edit Comment -->
+        <div class="edit-comment">
+
+          <label for="edit-comment">
+            التعليق
+          </label>
+
+          <textarea
+            id="edit-comment"
+            [(ngModel)]="editComment"
+            rows="4"
+            placeholder="اكتب تعليقك...">
+                </textarea>
+
+        </div>
+
+        <!-- Edit Actions -->
+        <div class="edit-actions">
+
+          <button
+            type="button"
+            class="save-button"
+            (click)="updateReview()">
+
+            حفظ التعديل
+
+          </button>
+
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="cancelEdit()">
+
+            إلغاء
+
+          </button>
+
+        </div>
+
+      </div>
+
+      }
+
+      <!-- Normal Review Content -->
+      @else {
+
+      @if (review.comment) {
+
+      <div class="review-content">
+        <p>{{ review.comment }}</p>
+      </div>
+
+      }
+
+      }
+
+      <!-- Footer -->
+      @if (editingReviewId !== review._id) {
+
+      <div class="review-footer">
+
+        @if (review.createdAt) {
+
+        <span>
+          {{ review.createdAt | date:'dd/MM/yyyy' }}
+        </span>
+
+        }
+
+        <div class="review-actions">
+
+          <button
+            type="button"
+            class="edit-button"
+            (click)="startEdit(review)">
+
+            تعديل
+
+          </button>
+
+          <button
+            type="button"
+            class="delete-button"
+            (click)="deleteReview(review._id!)">
+
+            حذف
+
+          </button>
+
+        </div>
+
+      </div>
+
+      }
+
+    </div>
+
+    }
+
+  </div>
+
+  }
+
+</div>

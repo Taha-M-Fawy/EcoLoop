@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { RequestService } from '../../services/request';
 import { Request } from '../../models/request.model';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-request-list',
@@ -13,7 +14,8 @@ import { Request } from '../../models/request.model';
 })
 export class RequestList implements OnInit {
   private requestService = inject(RequestService);
-  private cdr = inject(ChangeDetectorRef);
+private authService = inject(AuthService);
+private cdr = inject(ChangeDetectorRef);
 
   requests: Request[] = [];
   loading = true;
@@ -131,4 +133,36 @@ export class RequestList implements OnInit {
       }
     });
   }
-}
+offerRequest(request: Request): void {
+    this.authService.getUserById(request.userId).subscribe({
+      next: (response) => {
+        const user = response?.data?.user || response?.user || response?.data || response;
+
+        const phone = user?.phone || user?.phoneNumber || user?.mobile;
+
+        if (!phone) {
+          alert('رقم الهاتف غير متوفر لهذا المستخدم');
+          return;
+        }
+
+        let whatsappNumber = String(phone).replace(/\D/g, '');
+
+        if (whatsappNumber.startsWith('01')) {
+          whatsappNumber = '20' + whatsappNumber.substring(1);
+        }
+
+        const message =
+          `السلام عليكم، شفت طلبك على EcoLoop بخصوص "${this.getTitle(request.title)}" وعندي اللي محتاجه.`;
+
+        const whatsappUrl =
+          `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+        window.open(whatsappUrl, '_blank');
+      },
+
+      error: (err) => {
+        console.error('Failed to get request owner:', err);
+        alert('مش قادرين نوصل لبيانات صاحب الطلب');
+      }
+    });
+  }}

@@ -20,14 +20,22 @@ export class LoginComponent {
   ) {}
 
   onLogin() {
-    console.log('Sending:', this.email, this.password);
+
+    if (!this.email.trim()) {
+      alert('من فضلك أدخل البريد الإلكتروني');
+      return;
+    }
+
+    if (!this.password) {
+      alert('من فضلك أدخل كلمة المرور');
+      return;
+    }
 
     this.authService.login({
-      email: this.email,
+      email: this.email.trim(),
       password: this.password
     }).subscribe({
       next: (res: any) => {
-        console.log('SUCCESS:', res);
 
         this.authService.saveSession(res.token, res);
 
@@ -38,8 +46,7 @@ export class LoginComponent {
         }
       },
       error: (err: any) => {
-        console.log('ERROR:', err);
-        alert(err.error?.message || 'حدث خطأ');
+        alert(err.error?.message || 'بيانات الدخول غير صحيحة');
       }
     });
   }

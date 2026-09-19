@@ -11,7 +11,7 @@ const generateToken = (id, role) => {
 };
 
 const registerUser = async (userData) => {
-  const { username, email, password } = userData;
+  const { username, email, phone, password } = userData;
 
   const userExists = await User.findOne({ email });
 
@@ -25,6 +25,7 @@ const registerUser = async (userData) => {
   const user = await User.create({
     username,
     email,
+    phone,
     password: hashedPassword,
     role: 'user'
   });
@@ -33,6 +34,7 @@ const registerUser = async (userData) => {
     _id: user._id,
     username: user.username,
     email: user.email,
+    phone: user.phone,
     role: user.role,
     token: generateToken(user._id, user.role)
   };
@@ -55,6 +57,7 @@ const loginUser = async (email, password) => {
     _id: user._id,
     username: user.username,
     email: user.email,
+    phone: user.phone,
     role: user.role,
     token: generateToken(user._id, user.role)
   };

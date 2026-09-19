@@ -10,6 +10,8 @@ const categoryRoutes = require('./routes/category.route');
 const reviewsRoutes = require('./routes/reviews.routes');
 const notificationsRoutes = require('./routes/notifications.routes');
 const locationRoutes = require('./routes/location.routes');
+const requestRoutes = require('./routes/requests.routes'); // تم الإبقاء على سطر واحد فقط
+
 // Middlewares Imports
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -28,8 +30,6 @@ app.use(
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-
-
 //*--- API ROUTES ---*//
 app.use('/api/items', itemRoutes);
 app.use('/api/users', userRoutes);
@@ -37,9 +37,12 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/requests', requestRoutes);
+
 //*--- ERROR HANDLING MIDDLEWARE ---*//
 app.use(errorHandler);
 app.set('etag', false);
+
 //*--- CONNECT DB & START SERVER ---*//
 const serverPort = PORT || 5000;
 

@@ -1,0 +1,165 @@
+<div class="create-request-page">
+
+  <div class="page-header">
+    <span class="section-label">أضف طلبك</span>
+
+    <h1>محتاج حاجة؟ اكتب طلبك هنا.</h1>
+
+    <p>
+      اكتب تفاصيل الحاجة اللي محتاجها، ويمكن حد من المجتمع يقدر يساعدك.
+    </p>
+  </div>
+
+  @if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+  }
+
+  <form class="request-form" (ngSubmit)="submitRequest()">
+
+    <!-- Category -->
+    <div class="form-group">
+      <label for="category">التصنيف</label>
+
+      <select
+        id="category"
+        name="categoryId"
+        [(ngModel)]="form.categoryId"
+        [disabled]="loadingCategories || submitting"
+        required>
+
+        <option value="" disabled>
+          {{ loadingCategories ? 'جاري تحميل التصنيفات...' : 'اختاري التصنيف' }}
+        </option>
+
+        @for (category of categories; track category._id) {
+          <option [value]="category._id">
+            {{ category.name }}
+          </option>
+        }
+
+      </select>
+    </div>
+
+    <!-- Title -->
+    <div class="form-group">
+      <label for="title">عنوان الطلب</label>
+
+      <input
+        id="title"
+        name="title"
+        type="text"
+        [(ngModel)]="form.title"
+        placeholder="مثال: محتاج كتب برمجة"
+        [disabled]="submitting"
+        required>
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label for="description">وصف الطلب</label>
+
+      <textarea
+        id="description"
+        name="description"
+        rows="5"
+        [(ngModel)]="form.description"
+        placeholder="اكتب تفاصيل الحاجة اللي بتدور عليها..."
+        [disabled]="submitting"
+        required>
+      </textarea>
+    </div>
+
+    <!-- Quantity -->
+    <div class="form-group">
+      <label for="quantity">الكمية</label>
+
+      <input
+        id="quantity"
+        name="quantity"
+        type="number"
+        min="1"
+        [(ngModel)]="form.quantity"
+        [disabled]="submitting"
+        required>
+    </div>
+
+    <!-- Governorate -->
+    <div class="form-row">
+
+      <div class="form-group">
+        <label for="governorate">المحافظة</label>
+
+        <input
+          id="governorate"
+          name="governorate"
+          type="text"
+          [(ngModel)]="form.governorate"
+          placeholder="مثال: الإسكندرية"
+          [disabled]="submitting"
+          required>
+      </div>
+
+      <!-- City -->
+      <div class="form-group">
+        <label for="city">المدينة / المنطقة</label>
+
+        <input
+          id="city"
+          name="city"
+          type="text"
+          [(ngModel)]="form.city"
+          placeholder="مثال: سيدي جابر"
+          [disabled]="submitting"
+          required>
+      </div>
+
+    </div>
+
+    <!-- Urgency -->
+    <div class="form-group">
+      <label for="urgency">درجة الاستعجال</label>
+
+      <select
+        id="urgency"
+        name="urgency"
+        [(ngModel)]="form.urgency"
+        [disabled]="submitting">
+
+        <option value="Low">مش مستعجل</option>
+        <option value="Medium">عادي</option>
+        <option value="High">مستعجل</option>
+
+      </select>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+
+      <button
+        type="button"
+        class="cancel-btn"
+        (click)="cancel()"
+        [disabled]="submitting">
+        إلغاء
+      </button>
+
+      <button
+        type="submit"
+        class="submit-btn"
+        [disabled]="submitting || loadingCategories">
+
+        @if (submitting) {
+          جاري إرسال الطلب...
+        } @else {
+          أضف الطلب
+        }
+
+      </button>
+
+    </div>
+
+  </form>
+
+</div>

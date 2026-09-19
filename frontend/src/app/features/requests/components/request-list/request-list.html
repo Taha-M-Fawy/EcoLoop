@@ -1,159 +1,170 @@
-<div class="min-h-screen bg-slate-50 py-10 px-4 sm:px-6" dir="rtl">
-  <div class="max-w-7xl mx-auto space-y-8">
+<div class="requests-page">
 
-    <!-- Header Section -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-6">
-      <div class="space-y-1">
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-black">
-          <span>🤝</span>
-          <span>طلبات المجتمع</span>
-        </div>
-        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          محتاج حاجة؟ يمكن حد عنده اللي بتدور عليه
-        </h1>
-        <p class="text-xs sm:text-sm text-slate-500 font-medium">
-          شوف طلبات الناس حواليك وشارك بمساعدتهم في تلبية احتياجاتهم.
-        </p>
-      </div>
+  <!-- Header -->
+  <div class="page-header">
 
-      <div>
-        <a
-          routerLink="/requests/new"
-          class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs active:scale-95 cursor-pointer"
-        >
-          <span>+</span>
-          <span>أضف طلبك الآن</span>
-        </a>
-      </div>
-    </div>
+    <span class="section-label">
+      طلبات الناس
+    </span>
 
-    <!-- رسالة الخطأ -->
-    @if (error()) {
-      <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <span>{{ error() }}</span>
-      </div>
-    }
+    <h1>
+      محتاج حاجة؟ يمكن حد عنده اللي إنت محتاجه.
+    </h1>
 
-    <!-- حالة التحميل -->
-    @if (loading() && !error()) {
-      <div class="py-16 text-center">
-        <div class="inline-block w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-        <p class="mt-3 text-xs font-bold text-slate-400">جاري تحميل الطلبات...</p>
-      </div>
-    }
-
-    <!-- حالة عدم وجود طلبات -->
-    @if (!loading() && requests().length === 0 && !error()) {
-      <div class="py-16 text-center bg-white rounded-3xl border border-slate-200 p-8 shadow-xs">
-        <span class="text-4xl">📭</span>
-        <h3 class="text-base font-bold text-slate-800 mt-3">لا توجد طلبات معروضة حالياً</h3>
-        <p class="text-xs text-slate-500 mt-1">كن أول من يضيف طلباً لسلعة أو مستلزم يحتاجه المجتمع.</p>
-        <a
-          routerLink="/requests/new"
-          class="inline-block mt-4 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition"
-        >
-          إضافة طلب
-        </a>
-      </div>
-    }
-
-    <!-- شبكة الطلبات (Requests Grid) -->
-    @if (requests().length > 0) {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        @for (request of requests(); track request._id) {
-          <div class="flex flex-col justify-between bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs hover:border-emerald-500 hover:shadow-md transition">
-            
-            <!-- الجزء العلوي: الأهمية والحالة -->
-            <div class="space-y-3">
-              <div class="flex items-center justify-between gap-2">
-                <!-- شارة درجة الاستعجال -->
-                <span
-                  class="text-[11px] font-bold px-2.5 py-1 rounded-lg border"
-                  [ngClass]="{
-                    'bg-rose-50 text-rose-700 border-rose-200': request.urgency === 'High',
-                    'bg-amber-50 text-amber-700 border-amber-200': request.urgency === 'Medium',
-                    'bg-slate-100 text-slate-600 border-slate-200': request.urgency === 'Low' || !request.urgency
-                  }"
-                >
-                  @if (request.urgency === 'High') {
-                    🔴 عاجل جداً
-                  } @else if (request.urgency === 'Medium') {
-                    🟡 استعجال متوسط
-                  } @else {
-                    🟢 غير مستعجل
-                  }
-                </span>
-
-                <!-- شارة الحالة -->
-                <span
-                  class="text-[11px] font-semibold px-2.5 py-1 rounded-lg"
-                  [ngClass]="{
-                    'bg-emerald-50 text-emerald-700': request.status === 'Open' || !request.status,
-                    'bg-slate-100 text-slate-500': request.status !== 'Open' && request.status
-                  }"
-                >
-                  {{ (request.status === 'Open' || !request.status) ? 'متاح للتلبية' : 'مكتمل' }}
-                </span>
-              </div>
-
-              <!-- العنوان والوصف -->
-              <div>
-                <h2 class="text-base font-bold text-slate-900 group-hover:text-emerald-600 line-clamp-1">
-                  {{ request.title }}
-                </h2>
-                <p class="text-xs text-slate-500 leading-relaxed mt-1.5 line-clamp-3">
-                  {{ request.description }}
-                </p>
-              </div>
-            </div>
-
-            <!-- معلومات التفاصيل والإجراءات -->
-            <div class="mt-5 pt-4 border-t border-slate-100 space-y-4">
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                  <span class="block text-[10px] text-slate-400 font-bold mb-0.5">الكمية المطلوبة</span>
-                  <strong class="font-black text-slate-800">{{ request.quantity }} قطعة</strong>
-                </div>
-
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                  <span class="block text-[10px] text-slate-400 font-bold mb-0.5">الموقع الجغرافي</span>
-                  <strong class="font-bold text-slate-800 truncate block">
-                    {{ getCity(request.city) || '—' }}، {{ getGovernorate(request.governorate) || '—' }}
-                  </strong>
-                </div>
-              </div>
-
-              <!-- أزرار الإجراءات -->
-              @if (request._id) {
-                <div class="flex items-center gap-2 pt-1">
-                  <button
-                    type="button"
-                    class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer active:scale-95 text-center"
-                  >
-                    عندي طلبك وبتواصل
-                  </button>
-
-                  <button
-                    type="button"
-                    (click)="deleteRequest(request._id)"
-                    class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-xl transition cursor-pointer"
-                    title="حذف الطلب"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              }
-            </div>
-
-          </div>
-        }
-      </div>
-    }
+    <p>
+      شوف طلبات الناس حواليك وساعد حد بحاجة مش محتاجها.
+    </p>
 
   </div>
+
+
+  <!-- Create Request Button -->
+  <div class="create-request-wrapper">
+
+    <a
+      routerLink="/requests/new"
+      class="create-request-btn">
+
+      <span>+</span>
+
+      إنشاء طلب جديد
+
+    </a>
+
+  </div>
+
+
+  <!-- Error -->
+  @if (error) {
+
+    <div class="error">
+      {{ error }}
+    </div>
+
+  }
+
+
+  <!-- Requests -->
+  <div class="requests-grid">
+
+    <div
+      class="request-card"
+      *ngFor="let request of requests">
+
+
+      <!-- Top -->
+      <div class="request-top">
+
+        <span
+          class="urgency"
+          [class.high]="request.urgency === 'High'"
+          [class.medium]="request.urgency === 'Medium'"
+          [class.low]="request.urgency === 'Low'">
+
+          <span *ngIf="request.urgency === 'High'">
+            مستعجل
+          </span>
+
+          <span *ngIf="request.urgency === 'Medium'">
+            عادي
+          </span>
+
+          <span *ngIf="request.urgency === 'Low'">
+            مش مستعجل
+          </span>
+
+        </span>
+
+
+        <span class="status">
+
+          <span *ngIf="request.status === 'Open'">
+            لسه مفتوح
+          </span>
+
+          <span *ngIf="request.status === 'Closed'">
+            اتقفل
+          </span>
+
+        </span>
+
+      </div>
+
+
+      <!-- Content -->
+      <div class="request-content">
+
+        <h2>
+          {{ getTitle(request.title) }}
+        </h2>
+
+        <p class="description">
+          {{ getDescription(request.description) }}
+        </p>
+
+      </div>
+
+
+      <!-- Information -->
+      <div class="request-info">
+
+        <div class="info-row">
+
+          <span>
+            الكمية
+          </span>
+
+          <strong>
+            {{ request.quantity }} مطلوب
+          </strong>
+
+        </div>
+
+
+        <div class="info-row">
+
+          <span>
+            المكان
+          </span>
+
+          <strong>
+            {{ getCity(request.city) }}،
+            {{ getGovernorate(request.governorate) }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- Actions -->
+      <div
+        class="request-actions"
+        *ngIf="request._id">
+
+        <button
+          type="button"
+          class="offer-btn">
+
+          عندي اللي محتاجه
+
+        </button>
+
+
+        <button
+          type="button"
+          class="delete-btn"
+          (click)="deleteRequest(request._id)">
+
+          حذف الطلب
+
+        </button>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
 </div>

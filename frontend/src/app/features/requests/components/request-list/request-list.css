@@ -303,3 +303,38 @@
     width: 100%;
   }
 }
+.create-request-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 28px;
+}
+
+.create-request-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 13px 22px;
+
+  background: #059669;
+  color: #ffffff;
+
+  border-radius: 12px;
+
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+
+  transition: 0.2s ease;
+}
+
+.create-request-btn span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.create-request-btn:hover {
+  background: #047857;
+  transform: translateY(-1px);
+}

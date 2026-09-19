@@ -1,114 +1,170 @@
 <div class="requests-page">
 
+  <!-- Header -->
   <div class="page-header">
-    <span class="section-label">طلبات الناس</span>
 
-    <h1>محتاج حاجة؟ يمكن حد عنده اللي إنت محتاجه.</h1>
+    <span class="section-label">
+      طلبات الناس
+    </span>
 
-    <p>شوف طلبات الناس حواليك وساعد حد بحاجة مش محتاجها.</p>
+    <h1>
+      محتاج حاجة؟ يمكن حد عنده اللي إنت محتاجه.
+    </h1>
+
+    <p>
+      شوف طلبات الناس حواليك وساعد حد بحاجة مش محتاجها.
+    </p>
+
   </div>
 
+
+  <!-- Create Request Button -->
+  <div class="create-request-wrapper">
+
+    <a
+      routerLink="/requests/new"
+      class="create-request-btn">
+
+      <span>+</span>
+
+      إنشاء طلب جديد
+
+    </a>
+
+  </div>
+
+
+  <!-- Error -->
   @if (error) {
+
     <div class="error">
       {{ error }}
     </div>
+
   }
 
-  @if (requests.length === 0 && !error) {
-    <div class="message">
-      جاري تحميل الطلبات...
-    </div>
-  }
 
-  @if (requests.length > 0) {
+  <!-- Requests -->
+  <div class="requests-grid">
 
-    <div class="requests-grid">
+    <div
+      class="request-card"
+      *ngFor="let request of requests">
 
-      @for (request of requests; track request._id) {
 
-        <div class="request-card">
+      <!-- Top -->
+      <div class="request-top">
 
-          <div class="request-top">
+        <span
+          class="urgency"
+          [class.high]="request.urgency === 'High'"
+          [class.medium]="request.urgency === 'Medium'"
+          [class.low]="request.urgency === 'Low'">
 
-            <span
-              class="urgency"
-              [class.high]="request.urgency === 'High'"
-              [class.medium]="request.urgency === 'Medium'"
-              [class.low]="request.urgency === 'Low'">
+          <span *ngIf="request.urgency === 'High'">
+            مستعجل
+          </span>
 
-              @if (request.urgency === 'High') {
-                مستعجل
-              } @else if (request.urgency === 'Medium') {
-                عادي
-              } @else {
-                مش مستعجل
-              }
+          <span *ngIf="request.urgency === 'Medium'">
+            عادي
+          </span>
 
-            </span>
+          <span *ngIf="request.urgency === 'Low'">
+            مش مستعجل
+          </span>
 
-            <span class="status">
-              @if (request.status === 'Open') {
-                لسه مفتوح
-              } @else {
-                اتقفل
-              }
-            </span>
+        </span>
 
-          </div>
 
-          <div class="request-content">
+        <span class="status">
 
-            <h2>{{ getTitle(request.title) }}</h2>
+          <span *ngIf="request.status === 'Open'">
+            لسه مفتوح
+          </span>
 
-            <p class="description">
-              {{ getDescription(request.description) }}
-            </p>
+          <span *ngIf="request.status === 'Closed'">
+            اتقفل
+          </span>
 
-          </div>
+        </span>
 
-          <div class="request-info">
+      </div>
 
-            <div class="info-row">
-              <span>الكمية</span>
-              <strong>{{ request.quantity }} مطلوب</strong>
-            </div>
 
-            <div class="info-row">
-              <span>المكان</span>
-              <strong>
-                {{ getCity(request.city) }}، {{ getGovernorate(request.governorate) }}
-              </strong>
-            </div>
+      <!-- Content -->
+      <div class="request-content">
 
-          </div>
+        <h2>
+          {{ getTitle(request.title) }}
+        </h2>
 
-          @if (request._id) {
+        <p class="description">
+          {{ getDescription(request.description) }}
+        </p>
 
-            <div class="request-actions">
+      </div>
 
-              <button
-                type="button"
-                class="offer-btn">
-                عندي اللي محتاجه
-              </button>
 
-              <button
-                type="button"
-                class="delete-btn"
-                (click)="deleteRequest(request._id)">
-                حذف الطلب
-              </button>
+      <!-- Information -->
+      <div class="request-info">
 
-            </div>
+        <div class="info-row">
 
-          }
+          <span>
+            الكمية
+          </span>
+
+          <strong>
+            {{ request.quantity }} مطلوب
+          </strong>
 
         </div>
 
-      }
+
+        <div class="info-row">
+
+          <span>
+            المكان
+          </span>
+
+          <strong>
+            {{ getCity(request.city) }}،
+            {{ getGovernorate(request.governorate) }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- Actions -->
+      <div
+        class="request-actions"
+        *ngIf="request._id">
+
+        <button
+          type="button"
+          class="offer-btn">
+
+          عندي اللي محتاجه
+
+        </button>
+
+
+        <button
+          type="button"
+          class="delete-btn"
+          (click)="deleteRequest(request._id)">
+
+          حذف الطلب
+
+        </button>
+
+      </div>
+
 
     </div>
 
-  }
+  </div>
 
 </div>

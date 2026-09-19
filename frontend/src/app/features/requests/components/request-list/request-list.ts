@@ -1,16 +1,19 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { RequestService } from '../../services/request';
 import { Request } from '../../models/request.model';
 
 @Component({
   selector: 'app-request-list',
   standalone: true,
-  imports: [],
+   imports: [CommonModule, RouterLink],
   templateUrl: './request-list.html',
   styleUrl: './request-list.css'
 })
 export class RequestList implements OnInit {
   private requestService = inject(RequestService);
+  private cdr = inject(ChangeDetectorRef);
 
   requests: Request[] = [];
   loading = true;
@@ -27,13 +30,18 @@ export class RequestList implements OnInit {
     console.log('LOAD REQUESTS STARTED');
 
     this.requestService.getRequests().subscribe({
-      next: (data) => {
-        console.log('API DATA:', data);
-        this.requests = data;
-        this.loading = false;
-        console.log('LOADING AFTER DATA:', this.loading);
-        console.log('REQUESTS COUNT:', this.requests.length);
-      },
+     next: (data) => {
+  console.log('API DATA:', data);
+
+  this.requests = [...data];
+
+  this.loading = false;
+
+  console.log('LOADING AFTER DATA:', this.loading);
+  console.log('REQUESTS COUNT:', this.requests.length);
+
+  this.cdr.detectChanges();
+},
       error: (err) => {
         console.error('API ERROR:', err);
         this.error = 'Failed to load requests';

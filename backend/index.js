@@ -23,7 +23,7 @@ const app = express();
 app.use(compression());
 
 const allowedOrigins = [
-  'https://eco-loop-fr.vercel.app',
+  'https://eco-loop.vercel.app',
   'http://localhost:4200',
   'http://127.0.0.1:4200',
   'http://localhost:3000',

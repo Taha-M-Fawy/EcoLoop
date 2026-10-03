@@ -291,16 +291,28 @@
             </div>
 
             <div 
-              (click)="fileInput.click()" 
+              (click)="!isUploadingImages && fileInput.click()" 
               class="flex flex-col items-center justify-center border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer transition"
               [ngClass]="{
+                'opacity-60 cursor-not-allowed': isUploadingImages,
                 'border-rose-400 bg-rose-50/20': itemForm.get('images')?.touched && itemForm.get('images')?.invalid,
                 'border-slate-300 hover:border-emerald-500 hover:bg-emerald-50/30': !itemForm.get('images')?.touched || itemForm.get('images')?.valid
               }"
             >
-              <div class="text-3xl mb-2">📸</div>
-              <p class="text-sm font-bold text-slate-800">اسحب وأفلت الصور هنا أو اضغط للاختيار</p>
-              <p class="text-xs text-slate-400 mt-1">PNG, JPG بحد أقصى 4 صور وحتى 5 ميجابايت للصورة</p>
+              <div class="text-3xl mb-2">{{ isUploadingImages ? '⏳' : '📸' }}</div>
+              <p class="text-sm font-bold text-slate-800">
+                {{ isUploadingImages ? 'جاري رفع الصور ومعالجتها سحابياً...' : 'اسحب وأفلت الصور هنا أو اضغط للاختيار' }}
+              </p>
+              <p class="text-xs text-slate-400 mt-1">PNG, JPG بحد أقصى 5 صور وترفع مباشرة لسحابة Cloudinary فائقة السرعة</p>
+            </div>
+
+            <!-- Uploading Indicator -->
+            <div *ngIf="isUploadingImages" class="flex items-center justify-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-xs font-bold mt-4 animate-pulse">
+              <svg class="animate-spin h-5 w-5 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ uploadProgressText || 'جاري رفع الصور ومعالجتها سحابياً...' }}</span>
             </div>
 
             <input 
@@ -309,6 +321,7 @@
               accept="image/*" 
               multiple 
               class="hidden" 
+              [disabled]="isUploadingImages"
               (change)="onFileSelected($event)" 
             />
 
@@ -318,6 +331,7 @@
                 <img [src]="img" class="w-full h-full object-cover" alt="معاينة" />
                 <button 
                   type="button" 
+                  [disabled]="isUploadingImages"
                   (click)="removeImage(i)" 
                   class="absolute top-1 left-1 bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow hover:bg-rose-700 transition"
                   title="حذف"
@@ -395,10 +409,11 @@
             <button 
               type="button" 
               *ngIf="currentStep < 4" 
+              [disabled]="isUploadingImages"
               (click)="nextStep()"
-              class="rounded-xl bg-emerald-600 px-7 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 transition cursor-pointer"
+              class="rounded-xl bg-emerald-600 px-7 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              المتابعة
+              {{ isUploadingImages ? 'جاري رفع الصور...' : 'المتابعة' }}
             </button>
 
             <button 

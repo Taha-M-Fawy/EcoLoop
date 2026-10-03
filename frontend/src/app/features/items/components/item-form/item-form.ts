@@ -8,6 +8,7 @@ import { LocationService } from '../../../../core/services/location.service';
 import { LocationItem } from '../../../../core/models/location.model';
 import { ToastService } from '../../../../core/services/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { CloudinaryService } from '../../../../core/services/cloudinary.service';
 
 @Component({
   selector: 'app-item-form',
@@ -25,6 +26,7 @@ export class ItemFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
+  private cloudinaryService = inject(CloudinaryService);
 
   currentStep: number = 1;
 
@@ -32,6 +34,8 @@ export class ItemFormComponent implements OnInit {
   isEditMode = false;
   itemId: string | null = null;
   submitting = false;
+  isUploadingImages = false;
+  uploadProgressText = '';
 
   categories: CategorySummary[] = [];
   imagePreviews: string[] = [];
@@ -307,25 +311,44 @@ export class ItemFormComponent implements OnInit {
     this.imageError = null;
     const files = Array.from(input.files);
 
-    for (const file of files) {
-      if (file.size > 8 * 1024 * 1024) {
-        this.imageError = 'إحدى الصور تتجاوز 8 ميجابايت وتم تخطيها';
-        continue;
-      }
-      try {
-        const compressedBase64 = await this.compressImage(file);
-        if (compressedBase64) {
-          this.imagePreviews.push(compressedBase64);
-        }
-      } catch (err) {
-        console.error('فشل ضغط الصورة:', err);
-      }
+    if (this.imagePreviews.length + files.length > 5) {
+      this.imageError = 'الحد الأقصى المسموح به هو 5 صور للسلعة الواحدة';
+      return;
     }
 
-    this.itemForm.patchValue({ images: this.imagePreviews });
-    this.itemForm.get('images')?.updateValueAndValidity();
+    const validFiles: File[] = [];
+    for (const file of files) {
+      if (file.size > 10 * 1024 * 1024) {
+        this.imageError = 'إحدى الصور تتجاوز 10 ميجابايت وتم تخطيها';
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) return;
+
+    this.isUploadingImages = true;
+    this.uploadProgressText = `جاري رفع ${validFiles.length} صورة إلى السحابة...`;
     this.cdr.detectChanges();
-    input.value = '';
+
+    try {
+      const uploadedUrls = await this.cloudinaryService.uploadMultiple(validFiles);
+      if (uploadedUrls && uploadedUrls.length > 0) {
+        this.imagePreviews.push(...uploadedUrls);
+        this.itemForm.patchValue({ images: this.imagePreviews });
+        this.itemForm.get('images')?.updateValueAndValidity();
+        this.toast.success(`تم رفع ${uploadedUrls.length} صورة بنجاح إلى السحابة`);
+      }
+    } catch (err: any) {
+      console.error('فشل رفع الصور إلى Cloudinary:', err);
+      this.imageError = 'حدث خطأ أثناء رفع الصور إلى السحابة، يرجى المحاولة ثانية';
+      this.toast.error('فشل رفع الصور إلى السحابة');
+    } finally {
+      this.isUploadingImages = false;
+      this.uploadProgressText = '';
+      input.value = '';
+      this.cdr.detectChanges();
+    }
   }
 
   removeImage(index: number): void {

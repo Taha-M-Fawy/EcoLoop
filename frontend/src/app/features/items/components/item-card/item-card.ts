@@ -48,6 +48,9 @@ export class ItemCardComponent {
       }
       return `${raw}&w=450&q=75`;
     }
+    if (raw.includes('cloudinary.com') && raw.includes('/upload/')) {
+      return raw.replace('/upload/', '/upload/w_450,c_fill,q_auto,f_auto/');
+    }
     return raw;
   }
 

@@ -23,6 +23,7 @@ const app = express();
 app.use(compression());
 
 const allowedOrigins = [
+  'https://eco-loop-fr.vercel.app',
   'http://localhost:4200',
   'http://127.0.0.1:4200',
   'http://localhost:3000',
@@ -55,6 +56,10 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/transactions', transactionRoutes);
 
 // Health check
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'EcoLoop API is running successfully' });
+});
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });

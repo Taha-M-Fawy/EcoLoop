@@ -46,21 +46,21 @@ app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 //*--- API ROUTES ---*//
-app.use('/api/items', itemRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/reviews', reviewsRoutes);
-app.use('/api/notifications', notificationsRoutes);
-app.use('/api/locations', locationRoutes);
-app.use('/api/requests', requestRoutes);
-app.use('/api/transactions', transactionRoutes);
+app.use(['/api/items', '/items'], itemRoutes);
+app.use(['/api/users', '/users'], userRoutes);
+app.use(['/api/categories', '/categories'], categoryRoutes);
+app.use(['/api/reviews', '/reviews'], reviewsRoutes);
+app.use(['/api/notifications', '/notifications'], notificationsRoutes);
+app.use(['/api/locations', '/locations'], locationRoutes);
+app.use(['/api/requests', '/requests'], requestRoutes);
+app.use(['/api/transactions', '/transactions'], transactionRoutes);
 
 // Health check
 app.get('/', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'EcoLoop API is running successfully' });
 });
 
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 

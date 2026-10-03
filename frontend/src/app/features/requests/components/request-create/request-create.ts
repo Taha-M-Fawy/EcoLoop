@@ -7,6 +7,9 @@ import { HttpClient } from '@angular/common/http';
 import { RequestService } from '../../services/request';
 import { AuthService } from '../../../../core/services/auth.service';
 
+import { ToastService } from '../../../../core/services/toast.service';
+import { environment } from '../../../../../environments/environment';
+
 interface Category {
   _id: string;
   name: string;
@@ -28,8 +31,12 @@ export class RequestCreate implements OnInit {
   private authService = inject(AuthService);
   private http = inject(HttpClient);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   categories: Category[] = [];
+  governorates: string[] = [];
+  cities: string[] = [];
+  locationsData: any[] = [];
 
   form = {
     categoryId: '',
@@ -47,13 +54,30 @@ export class RequestCreate implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
+    this.loadLocations();
+  }
+
+  loadLocations(): void {
+    this.http.get<any>(`${environment.apiUrl}/locations`).subscribe({
+      next: (res) => {
+        this.locationsData = Array.isArray(res?.data) ? res.data : [];
+        this.governorates = this.locationsData.map(loc => loc.governorate);
+      },
+      error: (err) => console.error('Locations API Error:', err)
+    });
+  }
+
+  onGovernorateChange(): void {
+    const selected = this.locationsData.find(loc => loc.governorate === this.form.governorate);
+    this.cities = selected ? selected.cities : [];
+    this.form.city = '';
   }
 
   loadCategories(): void {
     this.loadingCategories = true;
     this.error = '';
 
-    this.http.get<Category[]>('http://localhost:5000/api/categories')
+    this.http.get<Category[]>(`${environment.apiUrl}/categories`)
       .subscribe({
         next: (categories) => {
           this.categories = categories.filter(category => category.isActive !== false);
@@ -70,25 +94,26 @@ export class RequestCreate implements OnInit {
   submitRequest(): void {
     this.error = '';
 
-    const userId = this.authService.currentUserValue?._id;
+    const userId = this.authService.currentUserValue?._id || this.authService.currentUserValue?.id;
 
     if (!userId) {
-      this.error = 'يجب تسجيل الدخول أولًا';
+      this.toast.error('يجب تسجيل الدخول أولًا لإنشاء طلب احتياج');
+      this.router.navigate(['/auth/login']);
       return;
     }
 
     if (!this.form.categoryId) {
-      this.error = 'من فضلك اختاري التصنيف';
+      this.error = 'من فضلك اختر التصنيف المناسب';
       return;
     }
 
     if (!this.form.title.trim()) {
-      this.error = 'من فضلك اكتبي عنوان الطلب';
+      this.error = 'من فضلك اكتب عنوان الطلب';
       return;
     }
 
     if (!this.form.description.trim()) {
-      this.error = 'من فضلك اكتبي وصف الطلب';
+      this.error = 'من فضلك اكتب تفاصيل ووصف الطلب';
       return;
     }
 
@@ -98,7 +123,7 @@ export class RequestCreate implements OnInit {
     }
 
     if (!this.form.governorate.trim() || !this.form.city.trim()) {
-      this.error = 'من فضلك اكتبي المحافظة والمدينة';
+      this.error = 'من فضلك حدد المحافظة والمدينة';
       return;
     }
 
@@ -119,11 +144,13 @@ export class RequestCreate implements OnInit {
     this.requestService.createRequest(newRequest).subscribe({
       next: () => {
         this.submitting = false;
+        this.toast.success('تم نشر طلب الاحتياج بنجاح! سيتم إشعارك فور تقديم المساعدة.');
         this.router.navigate(['/requests']);
       },
       error: (err) => {
         console.error('Create Request Error:', err);
-        this.error = 'حدث خطأ أثناء إنشاء الطلب';
+        this.error = err?.error?.message || 'حدث خطأ أثناء إنشاء الطلب';
+        this.toast.error(this.error);
         this.submitting = false;
       }
     });

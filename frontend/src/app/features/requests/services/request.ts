@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Request } from '../models/request.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { Request } from '../models/request.model';
 export class RequestService {
   private http = inject(HttpClient);
 
-  private apiUrl = 'http://localhost:5000/api/requests';
+  private apiUrl = `${environment.apiUrl}/requests`;
 
   getRequests(): Observable<Request[]> {
     return this.http.get<Request[]>(this.apiUrl);

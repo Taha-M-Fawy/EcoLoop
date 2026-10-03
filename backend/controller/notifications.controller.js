@@ -1,6 +1,8 @@
 const {
     createNotificationService,
     getNotificationsService,
+    getUnreadCountService,
+    markAllNotificationsAsReadService,
     getNotificationByIdService,
     updateNotificationService,
     deleteNotificationService
@@ -21,21 +23,35 @@ const createNotification = (req, res) => {
 
 //*---GET ALL NOTIFICATIONS---
 const getNotifications = (req, res) => {
-
     getNotificationsService(req.user.id)
-
     .then((notifications) => {
-
         res.status(200).json(notifications);
-
     })
-
     .catch((error) => {
-
         res.status(500).json({ message: error.message });
-
     });
+};
 
+//*---GET UNREAD COUNT---
+const getUnreadCount = (req, res) => {
+    getUnreadCountService(req.user.id)
+    .then((count) => {
+        res.status(200).json({ unreadCount: count });
+    })
+    .catch((error) => {
+        res.status(500).json({ message: error.message });
+    });
+};
+
+//*---MARK ALL NOTIFICATIONS AS READ---
+const markAllAsRead = (req, res) => {
+    markAllNotificationsAsReadService(req.user.id)
+    .then(() => {
+        res.status(200).json({ success: true, message: "All notifications marked as read" });
+    })
+    .catch((error) => {
+        res.status(500).json({ message: error.message });
+    });
 };
 
 //*---GET SINGLE NOTIFICATION---
@@ -87,6 +103,8 @@ const deleteNotification = (req, res) => {
 module.exports = {
     createNotification,
     getNotifications,
+    getUnreadCount,
+    markAllAsRead,
     getNotificationById,
     updateNotification,
     deleteNotification

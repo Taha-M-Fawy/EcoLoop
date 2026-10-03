@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-users',
@@ -23,7 +24,7 @@ export class Users implements OnInit {
   }
 
   getUsers() {
-    this.http.get<any[]>('http://localhost:5000/api/users').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/users`).subscribe({
       next: (data) => {
         console.log('USERS DATA:', data);
 
@@ -50,7 +51,7 @@ export class Users implements OnInit {
       return;
     }
 
-    this.http.delete(`http://localhost:5000/api/users/${id}`).subscribe({
+    this.http.delete(`${environment.apiUrl}/users/${id}`).subscribe({
       next: () => {
         this.users = this.users.filter(user => user._id !== id);
         this.cdr.detectChanges();

@@ -6,6 +6,10 @@ const notificationSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    title: {
+        type: String,
+        default: 'إشعار جديد'
+    },
     message: {
         type: String,
         required: true,
@@ -13,8 +17,16 @@ const notificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['review', 'transaction', 'request', 'system'],
+        enum: ['review', 'transaction', 'match', 'request', 'system'],
         default: 'system'
+    },
+    relatedEntityId: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: null
+    },
+    entityType: {
+        type: String,
+        default: null
     },
     isRead: {
         type: Boolean,
@@ -23,5 +35,7 @@ const notificationSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+
+notificationSchema.index({ userId: 1, isRead: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Notification", notificationSchema);

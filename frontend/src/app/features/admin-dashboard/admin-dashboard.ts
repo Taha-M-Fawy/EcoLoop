@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth/services/auth';
 import { DashboardService } from './services/dashboard';
@@ -10,72 +10,67 @@ import { DashboardService } from './services/dashboard';
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css'
 })
-export class AdminDashboard {
+export class AdminDashboard implements OnInit {
+  private authService = inject(AuthService);
+  private dashboardService = inject(DashboardService);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   usersCount = 0;
   itemsCount = 0;
   categoriesCount = 0;
   reviewsCount = 0;
 
-  constructor(
-    private authService: AuthService,
-    private dashboardService: DashboardService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadDashboardData();
   }
 
-  loadDashboardData() {
-
+  loadDashboardData(): void {
     this.dashboardService.getUsers().subscribe({
-      next: (users) => {
-        this.usersCount = users.length;
+      next: (users: any) => {
+        const list = Array.isArray(users) ? users : (users?.data || []);
+        this.usersCount = list.length;
         this.cdr.detectChanges();
-        console.log('Users:', this.usersCount);
       },
       error: (err) => {
-        console.log('Users Error:', err);
+        console.error('Users Error:', err);
       }
     });
 
     this.dashboardService.getItems().subscribe({
-      next: (items) => {
-        this.itemsCount = items.data.length;
+      next: (items: any) => {
+        this.itemsCount = items?.pagination?.total ?? (items?.data?.length || (Array.isArray(items) ? items.length : 0));
         this.cdr.detectChanges();
-        console.log('Items:', this.itemsCount);
       },
       error: (err) => {
-        console.log('Items Error:', err);
+        console.error('Items Error:', err);
       }
     });
 
     this.dashboardService.getCategories().subscribe({
-      next: (categories) => {
-        this.categoriesCount = categories.length;
+      next: (categories: any) => {
+        const list = Array.isArray(categories) ? categories : (categories?.data || []);
+        this.categoriesCount = list.length;
         this.cdr.detectChanges();
-        console.log('Categories:', this.categoriesCount);
       },
       error: (err) => {
-        console.log('Categories Error:', err);
+        console.error('Categories Error:', err);
       }
     });
 
     this.dashboardService.getReviews().subscribe({
-      next: (reviews) => {
-        this.reviewsCount = reviews.length;
+      next: (reviews: any) => {
+        const list = Array.isArray(reviews) ? reviews : (reviews?.data || []);
+        this.reviewsCount = list.length;
         this.cdr.detectChanges();
-        console.log('Reviews:', this.reviewsCount);
       },
       error: (err) => {
-        console.log('Reviews Error:', err);
+        console.error('Reviews Error:', err);
       }
     });
   }
 
-  logout() {
+  logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }

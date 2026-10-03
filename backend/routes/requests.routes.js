@@ -7,17 +7,14 @@ const {
   updateRequest,
   deleteRequest
 } = require('../controller/requests.controller');
+const { protect, optionalProtect } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.get('/', getRequests);
-
-router.get('/:id', getRequestById);
-
-router.post('/', createRequest);
-
-router.put('/:id', updateRequest);
-
-router.delete('/:id', deleteRequest);
+router.get('/', optionalProtect, getRequests);
+router.get('/:id', optionalProtect, getRequestById);
+router.post('/', protect, createRequest);
+router.put('/:id', protect, updateRequest);
+router.delete('/:id', protect, deleteRequest);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -16,6 +16,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   imports: [CommonModule, FormsModule, ItemCardComponent],
   templateUrl: './item-list.html',
   styleUrl: './item-list.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ItemListComponent implements OnInit {
   private itemService = inject(ItemService);
@@ -27,7 +28,7 @@ export class ItemListComponent implements OnInit {
 
   items: Item[] = [];
   categories: CategorySummary[] = [];
-  loading = false;
+  loading = true;
 
   currentPage = 1;
   totalPages = 1;
@@ -296,5 +297,25 @@ export class ItemListComponent implements OnInit {
           this.totalItems = 0;
         },
       });
+  }
+
+  trackByItemId(index: number, item: Item): string {
+    return item._id || String(index);
+  }
+
+  trackByCatId(index: number, cat: CategorySummary): string {
+    return cat._id || String(index);
+  }
+
+  trackByGov(index: number, gov: string): string {
+    return gov;
+  }
+
+  trackByCity(index: number, city: string): string {
+    return city;
+  }
+
+  trackByPage(index: number, page: number): number {
+    return page;
   }
 }

@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const itemController = require('../controller/item.controller');
 const itemMiddleware = require('../middlewares/item.middleware');
+const { optionalProtect } = require('../middlewares/authMiddleware');
+
+router.use(optionalProtect);
 
 router.get('/', itemController.getAllItems);
 router.get('/:id', itemMiddleware.validateObjectId, itemController.getItemById);

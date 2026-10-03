@@ -1,3 +1,20 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+app-navbar {
+  display: block;
+  min-height: 64px;
+}
+
+app-footer {
+  display: block;
+}
+
+app-item-list {
+  display: block;
+  width: 100%;
+}
+
+app-item-card {
+  display: block;
+  height: 100%;
+}

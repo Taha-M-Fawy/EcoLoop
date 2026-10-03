@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Item } from '../../models/item.model';
@@ -9,12 +9,14 @@ import { AuthService } from '../../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './item-card.html',
-  styleUrl: './item-card.css'
+  styleUrl: './item-card.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ItemCardComponent {
   private authService = inject(AuthService);
 
   @Input({ required: true }) item!: Item;
+  @Input() priority = false;
 
   imageFailed = false;
 
@@ -38,7 +40,15 @@ export class ItemCardComponent {
   }
 
   get primaryImage(): string {
-    return this.item?.images?.[0] || '';
+    const raw = this.item?.images?.[0];
+    if (!raw) return '';
+    if (raw.includes('images.unsplash.com')) {
+      if (raw.includes('w=')) {
+        return raw.replace(/w=\d+/, 'w=450').replace(/q=\d+/, 'q=75');
+      }
+      return `${raw}&w=450&q=75`;
+    }
+    return raw;
   }
 
   formatCondition(condition?: string): string {

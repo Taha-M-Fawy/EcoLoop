@@ -85,34 +85,37 @@
         required>
     </div>
 
-    <!-- Governorate -->
+    <!-- Governorate & City Cascading Dropdowns -->
     <div class="form-row">
 
       <div class="form-group">
         <label for="governorate">المحافظة</label>
 
-        <input
+        <select
           id="governorate"
           name="governorate"
-          type="text"
           [(ngModel)]="form.governorate"
-          placeholder="مثال: الإسكندرية"
+          (change)="onGovernorateChange()"
           [disabled]="submitting"
           required>
+          <option value="" disabled>اختر المحافظة</option>
+          <option *ngFor="let gov of governorates" [value]="gov">{{ gov }}</option>
+        </select>
       </div>
 
       <!-- City -->
       <div class="form-group">
-        <label for="city">المدينة / المنطقة</label>
+        <label for="city">المدينة / المركز</label>
 
-        <input
+        <select
           id="city"
           name="city"
-          type="text"
           [(ngModel)]="form.city"
-          placeholder="مثال: سيدي جابر"
-          [disabled]="submitting"
+          [disabled]="!form.governorate || submitting"
           required>
+          <option value="" disabled>{{ !form.governorate ? 'اختر المحافظة أولاً' : 'اختر المدينة' }}</option>
+          <option *ngFor="let c of cities" [value]="c">{{ c }}</option>
+        </select>
       </div>
 
     </div>

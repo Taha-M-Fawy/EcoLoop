@@ -1,9 +1,7 @@
-
-
-
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ReviewService } from '../../services/review';
 import { AuthService } from '../../../auth/services/auth';
 import { NotificationService } from '../../../notifications/services/notification';
@@ -15,76 +13,106 @@ import { NotificationService } from '../../../notifications/services/notificatio
   templateUrl: './review-form.html',
   styleUrl: './review-form.css',
 })
-export class ReviewForm {
+export class ReviewForm implements OnInit {
+  private reviewService = inject(ReviewService);
+  private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
-  // Temporary test IDs
-reviewerId = '';
-reviewedUserId = '6aad84a6148170904d53c603';
+  transactionId = '';
+  reviewerId = '';
+  reviewedUserId = '';
+  reviewedUserName = '';
 
   rating = 5;
   comment = '';
 
   successMessage = '';
   errorMessage = '';
+  submitting = false;
 
-constructor(
-  private reviewService: ReviewService,
-  private cdr: ChangeDetectorRef,
-  private authService: AuthService,
-  private notificationService: NotificationService
-) {}
+  ngOnInit(): void {
+    const user = this.authService.getUser();
+    if (user?._id || user?.id) {
+      this.reviewerId = user._id || user.id || '';
+    }
+
+    const queryParams = this.route.snapshot.queryParams;
+    if (queryParams['transactionId']) {
+      this.transactionId = queryParams['transactionId'];
+    }
+    if (queryParams['userId'] || queryParams['reviewedUserId']) {
+      this.reviewedUserId = queryParams['userId'] || queryParams['reviewedUserId'] || '';
+    }
+    if (queryParams['name'] || queryParams['userName']) {
+      this.reviewedUserName = queryParams['name'] || queryParams['userName'] || '';
+    }
+  }
 
   selectRating(value: number): void {
     this.rating = value;
   }
 
-submitReview(): void {
+  submitReview(): void {
+    this.successMessage = '';
+    this.errorMessage = '';
 
-  this.successMessage = '';
-  this.errorMessage = '';
+    if (!this.reviewerId) {
+      const user = this.authService.getUser();
+      this.reviewerId = user?._id || user?.id || '';
+    }
 
-const review = {
-  reviewerId: this.reviewerId,
-  reviewedUserId: this.reviewedUserId,
-  rating: this.rating,
-  comment: this.comment
-};
+    if (!this.reviewerId) {
+      this.errorMessage = 'يجب تسجيل الدخول أولاً لإرسال تقييم';
+      return;
+    }
 
-  console.log('Sending review:', review);
+    if (!this.reviewedUserId) {
+      this.errorMessage = 'يرجى تحديد أو إدخال معرّف المستخدم المراد تقييمه';
+      return;
+    }
 
-this.reviewService.createReview(review).subscribe({
-  next: (response) => {
+    if (this.reviewedUserId === this.reviewerId) {
+      this.errorMessage = 'لا يمكنك تقييم نفسك';
+      return;
+    }
 
-    console.log('Review created:', response);
+    this.submitting = true;
 
-    this.successMessage = 'Review added successfully';
+    const review: any = {
+      transactionId: this.transactionId || undefined,
+      reviewerId: this.reviewerId,
+      reviewedUserId: this.reviewedUserId,
+      rating: this.rating,
+      comment: this.comment.trim()
+    };
 
-    this.rating = 5;
-    this.comment = '';
+    this.reviewService.createReview(review).subscribe({
+      next: (response) => {
+        this.submitting = false;
+        this.successMessage = 'تم إرسال التقييم بنجاح، شكرًا لمشاركتك!';
+        this.rating = 5;
+        this.comment = '';
+        this.notificationService.refreshUnreadCount();
+        this.cdr.detectChanges();
 
-    this.notificationService.refreshUnreadCount();
-
-    this.cdr.detectChanges();
-  },
-
-  error: (err) => {
-
-    console.error('Create review error:', err);
-
-    this.errorMessage =
-      err?.error?.message || 'حدث خطأ أثناء إضافة التقييم';
-
+        setTimeout(() => {
+          if (this.transactionId) {
+            this.router.navigate(['/transactions']);
+          } else {
+            this.router.navigate(['/reviews']);
+          }
+        }, 1500);
+      },
+      error: (err) => {
+        this.submitting = false;
+        console.error('Create review error:', err);
+        this.errorMessage =
+          err?.error?.message || 'حدث خطأ أثناء إضافة التقييم';
+        this.cdr.detectChanges();
+      }
+    });
   }
-});
-}
-
-ngOnInit(): void {
-  const user = this.authService.getUser();
-
-  console.log('Logged in user:', user);
-
-  if (user?._id) {
-    this.reviewerId = user._id;
-  }
-}
 }

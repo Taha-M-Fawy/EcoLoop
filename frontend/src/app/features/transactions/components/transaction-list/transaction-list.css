@@ -1,0 +1,201 @@
+.transactions-page {
+  direction: rtl;
+  min-height: 90vh;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+/* ============================
+   Tabs Navigation (Pills)
+   ============================ */
+.tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.tab-pill:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.tab-pill.active {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);
+}
+
+.tab-pill.active svg {
+  color: #ffffff;
+}
+
+/* ============================
+   Compact Transaction Card
+   ============================ */
+.compact-tx-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  min-height: 280px;
+}
+
+.compact-tx-card:hover {
+  transform: translateY(-3px);
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.07);
+}
+
+.tx-completed {
+  border-color: #a7f3d0;
+}
+
+.tx-approved {
+  border-color: #bfdbfe;
+}
+
+/* ============================
+   Badges & Pills
+   ============================ */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+}
+
+.role-receiver {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.role-donor {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.otp-header-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+}
+
+.badge-pending {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.badge-approved {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.badge-completed {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-cancelled {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* ============================
+   Handshake OTP Blocks
+   ============================ */
+.otp-card-pending {
+  background: #fffbeb;
+  border: 1px dashed #fde68a;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.otp-number-display {
+  font-family: monospace;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 5px;
+  color: #92400e;
+  margin: 3px 0;
+}
+
+.otp-card-active {
+  background: #ecfdf5;
+  border: 1px dashed #10b981;
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.otp-number-active {
+  font-family: monospace;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 5px;
+  color: #047857;
+  margin: 3px 0;
+}
+
+.otp-card-verify {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.otp-card-completed {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: center;
+}

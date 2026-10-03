@@ -1,24 +1,59 @@
 <div class="notifications-page" dir="rtl">
 
     <div class="page-header">
-        <h1>الإشعارات</h1>
-        <p>آخر التحديثات والتنبيهات الخاصة بك</p>
-    </div>
+        <div class="header-titles">
+            <h1>الإشعارات والتنبيهات 🔔</h1>
+            <p>تابع مستجدات طلباتك، المعاملات الجارية، وأحدث التقييمات أولاً بأول</p>
+        </div>
 
-    @if (notifications.length > 0 && hasUnreadNotifications()) {
-    <div class="notifications-actions">
+        @if (notifications.length > 0 && hasUnreadNotifications()) {
         <button
             type="button"
             class="mark-all-button"
             (click)="markAllAsRead()">
-            تعليم الكل كمقروء
+            ✓ تعليم الكل كمقروء
+        </button>
+        }
+    </div>
+
+    <!-- Filter Tabs -->
+    @if (notifications.length > 0) {
+    <div class="tabs-container">
+        <button
+            type="button"
+            class="tab-btn"
+            [class.active]="activeTab === 'all'"
+            (click)="setTab('all')">
+            الكل ({{ notifications.length }})
+        </button>
+        <button
+            type="button"
+            class="tab-btn"
+            [class.active]="activeTab === 'unread'"
+            (click)="setTab('unread')">
+            غير المقروءة
+        </button>
+        <button
+            type="button"
+            class="tab-btn"
+            [class.active]="activeTab === 'transaction'"
+            (click)="setTab('transaction')">
+            🤝 المعاملات
+        </button>
+        <button
+            type="button"
+            class="tab-btn"
+            [class.active]="activeTab === 'review'"
+            (click)="setTab('review')">
+            ⭐ التقييمات
         </button>
     </div>
     }
 
     @if (loading) {
     <div class="state-box">
-        جاري تحميل الإشعارات...
+        <div class="spinner"></div>
+        <span>جاري تحميل الإشعارات...</span>
     </div>
     }
 
@@ -28,90 +63,80 @@
     </div>
     }
 
-    @if (
-    notifications.length === 0 &&
-    !loading &&
-    !error
-    ) {
+    @if (!loading && !error && filteredNotifications.length === 0) {
     <div class="state-box empty">
-        <h3>لا توجد إشعارات</h3>
-        <p>لا توجد إشعارات جديدة حاليًا.</p>
+        <div class="empty-icon">📭</div>
+        <h3>لا توجد إشعارات في هذا القسم</h3>
+        <p>ستظهر هنا أي تنبيهات تخص معاملاتك أو عروض المساعدة أو التقييمات.</p>
     </div>
     }
 
-    @if (notifications.length > 0) {
-
+    @if (!loading && filteredNotifications.length > 0) {
     <div class="notifications-container">
-
-        @for (
-        notification of notifications;
-        track notification._id
-        ) {
-
+        @for (notification of filteredNotifications; track notification._id) {
         <div
             class="notification-card"
             [class.unread]="!notification.isRead"
-            (click)="markAsRead(notification)">
+            (click)="handleNotificationClick(notification)">
 
             <!-- Notification Icon -->
-            <div class="notification-icon">
-
+            <div class="notification-icon" [ngClass]="notification.type">
                 @if (notification.type === 'review') {
                 ⭐
-                }
-
-                @if (notification.type === 'transaction') {
-                🔄
-                }
-
-                @if (notification.type === 'request') {
+                } @else if (notification.type === 'transaction') {
+                🤝
+                } @else if (notification.type === 'request') {
                 📩
+                } @else {
+                📦
                 }
-
-                @if (notification.type === 'system') {
-                ⚙️
-                }
-
             </div>
 
             <!-- Notification Content -->
             <div class="notification-content">
+                <div class="notification-top">
+                    <h4 class="notification-title">
+                        {{ notification.title || 'إشعار جديد' }}
+                    </h4>
+                    @if (notification.createdAt) {
+                    <span class="notification-date">
+                        {{ notification.createdAt | date:'dd/MM/yyyy - hh:mm a' }}
+                    </span>
+                    }
+                </div>
 
                 <p class="notification-message">
                     {{ notification.message }}
                 </p>
 
-                @if (notification.createdAt) {
-
-                <span class="notification-date">
-                    {{ notification.createdAt | date:'dd/MM/yyyy - hh:mm a' }}
-                </span>
-
-                }
-
+                <!-- Quick Action Buttons -->
+                <div class="notification-footer">
+                    @if (notification.type === 'transaction') {
+                    <span class="action-hint">اضغط لعرض تفاصيل المعاملة والـ OTP ←</span>
+                    } @else if (notification.type === 'request') {
+                    <span class="action-hint">اضغط لعرض تفاصيل الطلب ←</span>
+                    } @else if (notification.type === 'review') {
+                    <span class="action-hint">اضغط لعرض ملفك الشخصي وتقييماتك ←</span>
+                    }
+                </div>
             </div>
 
             <!-- Delete Button -->
             <button
                 type="button"
                 class="delete-button"
+                title="حذف الإشعار"
                 (click)="deleteNotification(notification); $event.stopPropagation()">
-                حذف
+                🗑️
             </button>
 
-            <!-- Unread Indicator -->
+            <!-- Unread Indicator Dot -->
             @if (!notification.isRead) {
-
             <span class="unread-dot"></span>
-
             }
-
         </div>
-
         }
-
     </div>
-
     }
 
 </div>

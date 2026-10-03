@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ItemService } from '../../services/item';
 import { ToastService } from '../../../../core/services/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { TransactionService } from '../../../transactions/services/transaction';
 
 @Component({
   selector: 'app-item-details',
@@ -16,6 +17,7 @@ export class ItemDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private itemService = inject(ItemService);
+  private transactionService = inject(TransactionService);
   private toast = inject(ToastService);
   private location = inject(Location);
   private cdr = inject(ChangeDetectorRef);
@@ -23,6 +25,7 @@ export class ItemDetailsComponent implements OnInit {
 
   item: any = null;
   loading = true;
+  requesting = false;
   selectedImage: string | null = null;
   fallbackImg = 'https://placehold.co/600x400/png';
 
@@ -133,7 +136,7 @@ export class ItemDetailsComponent implements OnInit {
 
   onRequestItem(): void {
     if (!this.currentUserId) {
-      this.toast.error('يرجى تسجيل الدخول أولاً لتتمكن من إتمام الطلب والتواصل');
+      this.toast.error('يرجى تسجيل الدخول أولاً لتتمكن من طلب استلام هذه السلعة');
       this.router.navigate(['/auth/login']);
       return;
     }
@@ -143,30 +146,30 @@ export class ItemDetailsComponent implements OnInit {
       return;
     }
 
-    // جلب بيانات ورقم هاتف صاحب السلعة
     const owner = this.item?.ownerId;
-    let phone = owner?.phone || owner?.whatsapp;
+    const ownerId = owner?._id || owner?.id || owner;
 
-    if (!phone) {
-      this.toast.error('رقم هاتف صاحب السلعة غير متوفر للتواصل');
+    if (!ownerId) {
+      this.toast.error('بيانات صاحب السلعة غير مكتملة');
       return;
     }
 
-    // تنظيف الرقم من أي مسافات أو رموز (+, -)
-    phone = phone.toString().replace(/[^0-9]/g, '');
-
-    // تحويل الأرقام المصرية (010, 011, 012, 015) إلى الصيغة الدولية 201...
-    if (phone.startsWith('01')) {
-      phone = '2' + phone;
-    }
-
-    // تجهيز رسالة مسبقة باسم السلعة ورابطها
-    const itemTitle = this.item?.title || 'السلعة';
-    const itemUrl = window.location.href;
-    const message = `السلام عليكم، أرغب في طلب استلام: "${itemTitle}" المعروضة على منصة EcoLoop.\nرابط السلعة: ${itemUrl}`;
-
-    // فتح المحادثة على واتساب في تبويب جديد
-    const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    this.requesting = true;
+    this.transactionService.createTransaction({
+      itemId: this.item._id,
+      donorOrSellerId: ownerId,
+      receiverId: this.currentUserId
+    }).subscribe({
+      next: () => {
+        this.requesting = false;
+        this.toast.success('تم إنشاء طلب المعاملة بنجاح! تم إشعار صاحب السلعة للموافقة.');
+        this.router.navigate(['/transactions']);
+      },
+      error: (err) => {
+        this.requesting = false;
+        console.error('Create transaction error:', err);
+        this.toast.error(err?.error?.message || 'فشل في إرسال طلب استلام السلعة');
+      }
+    });
   }
 }

@@ -1,24 +1,56 @@
 const Category = require('../models/category.model');
 
+let categoriesCache = null;
+let lastCategoriesFetch = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 const fetchAllCategories = async () => {
-  return await Category.find({});
+  const now = Date.now();
+  if (categoriesCache && (now - lastCategoriesFetch < CACHE_TTL)) {
+    return categoriesCache;
+  }
+  try {
+    const categories = await Category.find({}).lean();
+    if (categories && categories.length > 0) {
+      categoriesCache = categories;
+      lastCategoriesFetch = now;
+    }
+    return categories;
+  } catch (error) {
+    if (categoriesCache) {
+      console.warn("Serving categories from cache due to DB error:", error.message);
+      return categoriesCache;
+    }
+    throw error;
+  }
+};
+
+const invalidateCache = () => {
+  categoriesCache = null;
+  lastCategoriesFetch = 0;
 };
 
 const fetchCategoryById = async (id) => {
-  return await Category.findById(id);
+  return await Category.findById(id).lean();
 };
 
 const createNewCategory = async (categoryData) => {
   const category = new Category(categoryData);
-  return await category.save();
+  const saved = await category.save();
+  invalidateCache();
+  return saved;
 };
 
 const updateExistingCategory = async (id, updateData) => {
-  return await Category.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+  const updated = await Category.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+  invalidateCache();
+  return updated;
 };
 
 const deleteCategoryById = async (id) => {
-  return await Category.findByIdAndDelete(id);
+  const deleted = await Category.findByIdAndDelete(id);
+  invalidateCache();
+  return deleted;
 };
 
 module.exports = {

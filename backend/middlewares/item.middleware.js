@@ -49,9 +49,11 @@ exports.checkItemOwnership = async (req, res, next) => {
       });
     }
 
-    const currentUserId = req.headers['x-user-id'] || req.body.ownerId;
+    const authUser = req.user;
+    const currentUserId = authUser?._id || authUser?.id || req.headers['x-user-id'] || req.body.ownerId;
+    const isAdmin = authUser?.role === 'admin';
 
-    if (currentUserId && item.ownerId.toString() !== currentUserId.toString()) {
+    if (!isAdmin && currentUserId && item.ownerId && item.ownerId.toString() !== currentUserId.toString()) {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بإجراء هذه العملية، لست صاحب السلعة'

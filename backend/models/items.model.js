@@ -96,6 +96,9 @@ const itemSchema = new mongoose.Schema(
 );
 
 itemSchema.index({ categoryId: 1, governorate: 1, city: 1, status: 1 });
+itemSchema.index({ status: 1, createdAt: -1 });
+itemSchema.index({ ownerId: 1 });
+itemSchema.index({ createdAt: -1 });
 itemSchema.index({ title: 'text', description: 'text' });
 
 itemSchema.pre('save', function () {

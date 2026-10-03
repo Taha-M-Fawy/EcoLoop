@@ -4,7 +4,7 @@ const User = require('../models/user.model');
 
 const generateToken = (id, role) => {
   return jwt.sign(
-    { id, role },
+    { id: id.toString(), _id: id.toString(), role },
     process.env.JWT_SECRET || 'ecoloop_super_secret_key_2026',
     { expiresIn: '30d' }
   );

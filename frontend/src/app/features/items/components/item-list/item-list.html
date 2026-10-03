@@ -13,10 +13,10 @@
             aria-label="تصفية حسب التصنيف"
             [(ngModel)]="filters.categoryId"
             (change)="applyFilters()"
-            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer font-medium"
+            class="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer font-medium"
           >
             <option value="">كل التصنيفات</option>
-            <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+            <option *ngFor="let cat of categories; trackBy: trackByCatId" [value]="cat._id">{{ cat.name }}</option>
           </select>
         </div>
 
@@ -28,7 +28,7 @@
             aria-label="تصفية حسب نوع المعاملة"
             [(ngModel)]="filters.type"
             (change)="applyFilters()"
-            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer font-medium"
+            class="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer font-medium"
           >
             <option value="all">جميع المعاملات</option>
             <option value="donation">تبرع مجاني</option>
@@ -45,10 +45,10 @@
             aria-label="تصفية حسب المحافظة"
             [(ngModel)]="filters.governorate"
             (change)="onGovChange()"
-            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer font-medium"
+            class="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white cursor-pointer font-medium"
           >
             <option value="">كل المحافظات</option>
-            <option *ngFor="let gov of governorates" [value]="gov">{{ gov }}</option>
+            <option *ngFor="let gov of governorates; trackBy: trackByGov" [value]="gov">{{ gov }}</option>
           </select>
         </div>
 
@@ -61,12 +61,12 @@
             [(ngModel)]="filters.city"
             (change)="applyFilters()"
             [disabled]="!filters.governorate"
-            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-medium"
+            class="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs sm:text-sm outline-none transition focus:border-emerald-500 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-medium"
           >
             <option value="">
               {{ filters.governorate ? 'كل المراكز / المدن' : 'اختر المحافظة أولاً' }}
             </option>
-            <option *ngFor="let c of availableCities" [value]="c">{{ c }}</option>
+            <option *ngFor="let c of availableCities; trackBy: trackByCity" [value]="c">{{ c }}</option>
           </select>
         </div>
 
@@ -75,25 +75,43 @@
   </div>
 
   <!-- شبكة المعروضات -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[850px]">
     
-    <!-- مؤشر التحميل (Skeletons) -->
-    <div
-      *ngIf="loading"
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-    >
-      <div
-        *ngFor="let n of [1, 2, 3, 4, 5, 6, 7, 8]"
-        class="h-80 animate-pulse rounded-2xl bg-slate-200/80"
-      ></div>
-    </div>
+    <!-- شبكة المعروضات الموحدة لمنع Layout Shift -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-stretch">
+      <!-- في حالة التحميل -->
+      <ng-container *ngIf="loading">
+        <div
+          *ngFor="let n of [1, 2, 3, 4, 5, 6, 7, 8]; trackBy: trackByPage"
+          class="flex flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs min-h-[380px]"
+        >
+          <div class="aspect-[4/3] w-full bg-slate-100 animate-pulse" style="aspect-ratio: 4 / 3;"></div>
+          <div class="flex flex-1 flex-col p-4 justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <div class="h-3.5 w-24 bg-slate-200 rounded animate-pulse"></div>
+                <div class="h-4 w-12 bg-slate-100 rounded"></div>
+              </div>
+              <div class="h-4 w-3/4 bg-slate-200 rounded mb-2.5 animate-pulse"></div>
+              <div class="h-3 w-full bg-slate-100 rounded mb-1.5 animate-pulse"></div>
+              <div class="h-3 w-2/3 bg-slate-100 rounded animate-pulse"></div>
+            </div>
+            <div class="mt-4 pt-3.5 border-t border-slate-100">
+              <div class="h-9 w-full bg-slate-100 rounded-xl"></div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
 
-    <!-- شبكة السلع -->
-    <div
-      *ngIf="!loading && items.length > 0"
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-stretch"
-    >
-      <app-item-card *ngFor="let item of items" [item]="item" class="h-full" />
+      <!-- السلع الفعلية -->
+      <ng-container *ngIf="!loading && items.length > 0">
+        <app-item-card 
+          *ngFor="let item of items; let i = index; trackBy: trackByItemId" 
+          [item]="item" 
+          [priority]="i < 2" 
+          class="h-full" 
+        />
+      </ng-container>
     </div>
 
     <!-- في حال عدم وجود نتائج -->
@@ -127,7 +145,7 @@
         </button>
 
         <button
-          *ngFor="let page of pagesArray"
+          *ngFor="let page of pagesArray; trackBy: trackByPage"
           type="button"
           (click)="goToPage(page)"
           [class.bg-emerald-600]="currentPage === page"

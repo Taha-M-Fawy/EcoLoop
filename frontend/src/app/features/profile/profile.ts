@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/services/auth';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -42,7 +43,7 @@ export class Profile implements OnInit {
     }
 
     this.http.get<any>(
-      `http://localhost:5000/api/users/${user._id}`
+      `${environment.apiUrl}/users/${user._id}`
     ).subscribe({
       next: (data) => {
         this.user = {
@@ -89,7 +90,7 @@ export class Profile implements OnInit {
     }
 
     this.http.put(
-      `http://localhost:5000/api/users/${user._id}`,
+      `${environment.apiUrl}/users/${user._id}`,
       updateData
     ).subscribe({
       next: (data: any) => {

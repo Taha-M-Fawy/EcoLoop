@@ -33,9 +33,30 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isItemsPage = signal(false);
   categories = signal<CategorySummary[]>([]);
 
-  currentUser = signal<any>(null);
-  isLoggedIn = signal<boolean>(false);
+  currentUser = signal<any>(this.getInitialUser());
+  isLoggedIn = signal<boolean>(this.getInitialIsLoggedIn());
   unreadNotificationsCount = signal<number>(0);
+
+  private getInitialIsLoggedIn(): boolean {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return !!(localStorage.getItem('token') || localStorage.getItem('accessToken'));
+    }
+    return false;
+  }
+
+  private getInitialUser(): any {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          return JSON.parse(userStr);
+        } catch {
+          return { name: 'المستخدم' };
+        }
+      }
+    }
+    return null;
+  }
 
   userName = computed(() => {
     const user = this.currentUser();
@@ -48,17 +69,17 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.syncAuthState();
-    this.notificationService.refreshUnreadCount();
 
-this.notificationService.unreadCount$.subscribe((count) => {
-  this.unreadNotificationsCount.set(count);
-});
+    this.notificationService.unreadCount$.subscribe((count) => {
+      this.unreadNotificationsCount.set(count);
+    });
 
     if ((this.authService as any).currentUser$) {
       (this.authService as any).currentUser$.subscribe((user: any) => {
         if (user) {
           this.currentUser.set(user);
           this.isLoggedIn.set(true);
+          this.notificationService.refreshUnreadCount();
         } else {
           this.syncAuthState();
         }
@@ -90,22 +111,6 @@ this.notificationService.unreadCount$.subscribe((count) => {
 
     this.loadCategories();
   }
-
-  private loadUnreadNotifications(): void {
-  if (!this.isLoggedIn()) {
-    this.unreadNotificationsCount.set(0);
-    return;
-  }
-
-  this.notificationService.getUnreadCount().subscribe({
-    next: (count) => {
-      this.unreadNotificationsCount.set(count);
-    },
-    error: () => {
-      this.unreadNotificationsCount.set(0);
-    }
-  });
-}
 
   ngOnDestroy(): void {
     this.searchSub?.unsubscribe();
@@ -150,10 +155,10 @@ this.notificationService.unreadCount$.subscribe((count) => {
         this.currentUser.set((this.authService as any).currentUser);
       }
     } else {
-  this.isLoggedIn.set(false);
-  this.currentUser.set(null);
-  this.unreadNotificationsCount.set(0);
-}
+      this.isLoggedIn.set(false);
+      this.currentUser.set(null);
+      this.unreadNotificationsCount.set(0);
+    }
   }
 
   private checkIfItemsPage(url: string): void {
@@ -187,6 +192,7 @@ this.notificationService.unreadCount$.subscribe((count) => {
     this.isUserMenuOpen.set(false);
     this.isLoggedIn.set(false);
     this.currentUser.set(null);
+    this.unreadNotificationsCount.set(0);
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }

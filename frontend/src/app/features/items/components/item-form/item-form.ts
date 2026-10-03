@@ -260,29 +260,71 @@ export class ItemFormComponent implements OnInit {
     this.isMedicalCategory = catName.includes('medic') || catName.includes('دواء') || catName.includes('طب');
   }
 
-  onFileSelected(event: Event): void {
+  private compressImage(file: File): Promise<string> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 900;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.78);
+            resolve(compressed);
+          } else {
+            resolve(e.target.result as string);
+          }
+        };
+        img.onerror = () => resolve(e.target.result as string);
+        img.src = e.target.result;
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
     this.imageError = null;
     const files = Array.from(input.files);
 
-    files.forEach((file) => {
-      if (file.size > 5 * 1024 * 1024) {
-        this.imageError = 'إحدى الصور تتجاوز 5 ميجابايت وتم تخطيها';
-        return;
+    for (const file of files) {
+      if (file.size > 8 * 1024 * 1024) {
+        this.imageError = 'إحدى الصور تتجاوز 8 ميجابايت وتم تخطيها';
+        continue;
       }
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64String = reader.result as string;
-        this.imagePreviews.push(base64String);
-        this.itemForm.patchValue({ images: this.imagePreviews });
-        this.itemForm.get('images')?.updateValueAndValidity();
-        this.cdr.detectChanges();
-      };
-      reader.readAsDataURL(file);
-    });
+      try {
+        const compressedBase64 = await this.compressImage(file);
+        if (compressedBase64) {
+          this.imagePreviews.push(compressedBase64);
+        }
+      } catch (err) {
+        console.error('فشل ضغط الصورة:', err);
+      }
+    }
 
+    this.itemForm.patchValue({ images: this.imagePreviews });
+    this.itemForm.get('images')?.updateValueAndValidity();
+    this.cdr.detectChanges();
     input.value = '';
   }
 
@@ -422,4 +464,4 @@ export class ItemFormComponent implements OnInit {
   cancel(): void {
     this.router.navigate(['/items']);
   }
-} 
+}

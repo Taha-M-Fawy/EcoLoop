@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36" height="36">
+  <!-- الخلفية الخضراء الدائرية الأنيقة المتناسقة مع هويتك -->
+  <rect width="36" height="36" rx="10" fill="#059669" />
+  
+  <!-- أيقونة التدوير البيضاء المستخرجة من الناف بار -->
+  <g transform="translate(6, 6)">
+    <path 
+      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+      fill="none" 
+      stroke="#ffffff" 
+      stroke-width="2.2" 
+      stroke-linecap="round" 
+      stroke-linejoin="round" 
+    />
+  </g>
+</svg>

@@ -1,23 +1,68 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { RequestService } from '../../services/request';
 import { Request } from '../../models/request.model';
+import { ToastService } from '../../../../core/services/toast.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { TransactionService } from '../../../transactions/services/transaction';
 
 @Component({
   selector: 'app-request-list',
   standalone: true,
-   imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './request-list.html',
   styleUrl: './request-list.css'
 })
 export class RequestList implements OnInit {
   private requestService = inject(RequestService);
+  private transactionService = inject(TransactionService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private toast = inject(ToastService);
 
   requests: Request[] = [];
   loading = true;
   error = '';
+  actionLoading: { [id: string]: boolean } = {};
+
+  filterUrgency: string = 'all';
+  filterStatus: string = 'all';
+
+  get currentUserId(): string {
+    const user = this.authService.currentUserValue;
+    return user?._id || user?.id || '';
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.currentUserValue?.role === 'admin';
+  }
+
+  isOwner(request: Request): boolean {
+    const currentId = this.currentUserId;
+    if (!currentId) return false;
+    const requester = request.userId as any;
+    if (!requester) return false;
+    const requesterId = requester?._id || requester?.id || (typeof requester === 'string' ? requester : null);
+    if (!requesterId) return false;
+    return String(requesterId).trim() === String(currentId).trim();
+  }
+
+  getRequesterName(request: Request): string {
+    const user = request.userId as any;
+    if (!user) return 'عضو بالمنصة';
+    if (typeof user === 'string') return 'عضو بالمنصة';
+    return user.name || user.username || 'عضو بالمنصة';
+  }
+
+  get filteredRequests(): Request[] {
+    return this.requests.filter(req => {
+      const matchUrgency = this.filterUrgency === 'all' || req.urgency === this.filterUrgency;
+      const matchStatus = this.filterStatus === 'all' || req.status === this.filterStatus;
+      return matchUrgency && matchStatus;
+    });
+  }
 
   ngOnInit(): void {
     this.loadRequests();
@@ -27,28 +72,55 @@ export class RequestList implements OnInit {
     this.loading = true;
     this.error = '';
 
-    console.log('LOAD REQUESTS STARTED');
-
     this.requestService.getRequests().subscribe({
-     next: (data) => {
-  console.log('API DATA:', data);
-
-  this.requests = [...data];
-
-  this.loading = false;
-
-  console.log('LOADING AFTER DATA:', this.loading);
-  console.log('REQUESTS COUNT:', this.requests.length);
-
-  this.cdr.detectChanges();
-},
+      next: (data) => {
+        this.requests = [...data];
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
       error: (err) => {
         console.error('API ERROR:', err);
-        this.error = 'Failed to load requests';
+        this.error = 'فشل تحميل الطلبات، يرجى المحاولة لاحقاً';
         this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  offerRequest(request: Request): void {
+    if (!request._id) return;
+    const reqId = request._id;
+
+    if (!this.currentUserId) {
+      this.toast.error('يرجى تسجيل الدخول أولاً لتتمكن من تقديم عرض المساعدة');
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    const requester = request.userId as any;
+    const requesterId = requester?._id || requester?.id || requester;
+
+    if (String(requesterId) === String(this.currentUserId)) {
+      this.toast.error('لا يمكنك تقديم عرض مساعدة لطلبك الشخصي');
+      return;
+    }
+
+    this.actionLoading[reqId] = true;
+
+    this.transactionService.createTransaction({
+      requestId: reqId,
+      donorOrSellerId: this.currentUserId,
+      receiverId: requesterId
+    }).subscribe({
+      next: () => {
+        this.actionLoading[reqId] = false;
+        this.toast.success('تم تقديم عرض المساعدة بنجاح! تم إنشاء المعاملة.');
+        this.router.navigate(['/transactions']);
       },
-      complete: () => {
-        console.log('API REQUEST COMPLETED');
+      error: (err) => {
+        this.actionLoading[reqId] = false;
+        console.error('Offer request error:', err);
+        this.toast.error(err?.error?.message || 'فشل في تقديم عرض المساعدة');
       }
     });
   }
@@ -117,17 +189,19 @@ export class RequestList implements OnInit {
   }
 
   deleteRequest(id: string): void {
-    if (!confirm('هل أنتِ متأكدة من حذف هذا الطلب؟')) {
+    if (!confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
       return;
     }
 
     this.requestService.deleteRequest(id).subscribe({
       next: () => {
         this.requests = this.requests.filter(request => request._id !== id);
+        this.toast.success('تم حذف الطلب بنجاح');
       },
       error: (err) => {
         console.error(err);
         this.error = 'حدث خطأ أثناء حذف الطلب';
+        this.toast.error('حدث خطأ أثناء حذف الطلب');
       }
     });
   }

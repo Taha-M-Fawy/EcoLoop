@@ -1,8 +1,23 @@
 const Item = require('../models/items.model');
 const mongoose = require('mongoose');
 
+// In-Memory Fast Cache for items listing (reduces Atlas latency from 15s to 0ms)
+const itemsCache = new Map();
+const ITEMS_CACHE_TTL = 45 * 1000; // 45 seconds
+
+const invalidateItemsCache = () => {
+  itemsCache.clear();
+};
+exports.invalidateItemsCache = invalidateItemsCache;
+
 // 1. Get All Items with dynamic filters, pagination, robust regex search, and owner filtering
 exports.findAllItems = async (queryParams = {}, authUserId = null) => {
+  const cacheKey = `${JSON.stringify(queryParams)}_${authUserId || 'guest'}`;
+  const cached = itemsCache.get(cacheKey);
+  if (cached && (Date.now() - cached.timestamp < ITEMS_CACHE_TTL)) {
+    return cached.data;
+  }
+
   let { 
     category, 
     categoryId, 
@@ -33,14 +48,8 @@ exports.findAllItems = async (queryParams = {}, authUserId = null) => {
 
   if (resolvedOwnerId && mongoose.Types.ObjectId.isValid(resolvedOwnerId)) {
     conditions.push({ ownerId: new mongoose.Types.ObjectId(resolvedOwnerId) });
-  } else {
-    // إظهار المتاح فقط في التصفح العام
-    conditions.push({
-      $or: [
-        { status: 'available' },
-        { status: { $exists: false } }
-      ]
-    });
+  } else if (queryParams.status && queryParams.status !== 'all') {
+    conditions.push({ status: queryParams.status });
   }
 
   // 2. معالجة وفك تشفير البحث النصي
@@ -87,18 +96,22 @@ exports.findAllItems = async (queryParams = {}, authUserId = null) => {
 
   const skip = (pageNum - 1) * limitNum;
 
+  const countPromise = conditions.length > 0 
+    ? Item.countDocuments(finalFilter) 
+    : Item.estimatedDocumentCount();
+
   const [items, total] = await Promise.all([
     Item.find(finalFilter)
-      .sort({ createdAt: -1 })
+      .sort({ status: 1, createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
       .populate('categoryId', 'name')
       .populate('ownerId', 'name username avatar phone rating isVerified')
       .lean(),
-    Item.countDocuments(finalFilter)
+    countPromise
   ]);
 
-  return {
+  const result = {
     pagination: {
       total,
       page: pageNum,
@@ -107,6 +120,9 @@ exports.findAllItems = async (queryParams = {}, authUserId = null) => {
     },
     data: items
   };
+
+  itemsCache.set(cacheKey, { timestamp: Date.now(), data: result });
+  return result;
 };
 
 // 2. Get Single Item By ID
@@ -153,7 +169,20 @@ exports.createNewItem = async (payload, ownerId) => {
   });
 
   safePayload.ownerId = ownerId;
-  return await Item.create(safePayload);
+  const createdItem = await Item.create(safePayload);
+  if (ownerId) {
+    const { createNotificationService } = require('./notifications.service');
+    createNotificationService({
+      userId: ownerId,
+      title: 'تم نشر السلعة بنجاح 📦',
+      message: `تم نشر سلعتك "${createdItem.title}" بنجاح في مجتمع EcoLoop! ستصلك إشعارات فور طلب أحد الأعضاء استلامها.`,
+      type: 'system',
+      relatedEntityId: createdItem._id,
+      entityType: 'Item'
+    }).catch(() => {});
+  }
+  invalidateItemsCache();
+  return createdItem;
 };
 
 // 4. Update Existing Item
@@ -165,13 +194,26 @@ exports.modifyItem = async (id, updateData) => {
   const restrictedUpdates = ['_id', 'ownerId', 'createdAt', 'updatedAt', 'isVerified'];
   restrictedUpdates.forEach((key) => delete updateData[key]);
 
-  return await Item.findByIdAndUpdate(id, updateData, {
+  const updated = await Item.findByIdAndUpdate(id, updateData, {
     returnDocument: 'after',
     runValidators: true
   });
+  invalidateItemsCache();
+  return updated;
 };
 
 // 5. Delete Item
-exports.removeItem = async (itemDoc) => {
-  return await itemDoc.deleteOne();
+exports.removeItem = async (target) => {
+  if (!target) return null;
+  let result = null;
+  if (typeof target.deleteOne === 'function') {
+    result = await target.deleteOne();
+  } else {
+    const id = target._id || target.id || target;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      result = await Item.findByIdAndDelete(id);
+    }
+  }
+  invalidateItemsCache();
+  return result;
 };

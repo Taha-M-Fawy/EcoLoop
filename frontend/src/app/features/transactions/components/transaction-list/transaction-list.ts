@@ -6,11 +6,12 @@ import { TransactionService } from '../../services/transaction';
 import { Transaction, TransactionStatus } from '../../models/transaction.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { PaymentModalComponent } from '../payment-modal/payment-modal.component';
 
 @Component({
   selector: 'app-transaction-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaymentModalComponent],
   templateUrl: './transaction-list.html',
   styleUrl: './transaction-list.css'
 })
@@ -29,6 +30,10 @@ export class TransactionListComponent implements OnInit {
   // For verifying OTP on delivery
   otpInputs: { [txId: string]: string } = {};
   actionLoading: { [txId: string]: boolean } = {};
+
+  // Online Cash Payment Modal State
+  selectedTxForPayment: Transaction | null = null;
+  isPaymentModalOpen = false;
 
   get currentUserId(): string {
     const user = this.authService.currentUserValue;
@@ -216,6 +221,49 @@ export class TransactionListComponent implements OnInit {
       case 'completed': return 'مكتملة بنجاح';
       case 'cancelled': return 'ملغاة';
       default: return status;
+    }
+  }
+
+  isSellTransaction(tx: Transaction): boolean {
+    return tx.itemId?.type === 'sell' || ((tx.platformFee || 0) > 0) || ((tx.itemPrice || 0) > 0);
+  }
+
+  isPaid(tx: Transaction): boolean {
+    return tx.paymentStatus === 'paid';
+  }
+
+  needsPayment(tx: Transaction): boolean {
+    return this.isSellTransaction(tx) && tx.paymentStatus !== 'paid' && this.isReceiver(tx) && tx.status !== 'cancelled';
+  }
+
+  openPaymentForTransaction(tx: Transaction): void {
+    this.selectedTxForPayment = tx;
+    this.isPaymentModalOpen = true;
+  }
+
+  closePaymentModal(): void {
+    this.isPaymentModalOpen = false;
+    this.selectedTxForPayment = null;
+  }
+
+  onPaymentSuccess(event: any): void {
+    if (event.transaction) {
+      this.updateLocalTransaction(event.transaction);
+    } else if (this.selectedTxForPayment) {
+      this.loadTransactions();
+    }
+    this.closePaymentModal();
+  }
+
+  getPaymentMethodLabel(method?: string): string {
+    switch (method) {
+      case 'vodafone_cash': return 'فودافون كاش';
+      case 'instapay': return 'إنستاباي (InstaPay)';
+      case 'orange_cash': return 'أورانج كاش';
+      case 'etisalat_cash': return 'اتصالات كاش';
+      case 'we_pay': return 'وي باي (WE Pay)';
+      case 'cash_wallet': return 'محفظة كاش إلكترونية';
+      default: return 'كاش أونلاين';
     }
   }
 

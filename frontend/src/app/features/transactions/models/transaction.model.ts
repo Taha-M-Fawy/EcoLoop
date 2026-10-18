@@ -1,5 +1,19 @@
 export type TransactionStatus = 'pending' | 'approved' | 'completed' | 'cancelled';
 
+export type PaymentMethod = 'vodafone_cash' | 'orange_cash' | 'etisalat_cash' | 'we_pay' | 'instapay' | 'cash_wallet' | 'none';
+
+export type PaymentStatus = 'unpaid' | 'pending' | 'paid' | 'refunded';
+
+export type EscrowStatus = 'none' | 'holding' | 'released' | 'refunded';
+
+export interface PaymentDetails {
+  senderWalletNumber?: string;
+  receiverWalletNumber?: string;
+  transactionRef?: string;
+  provider?: string;
+  paidAmount?: number;
+}
+
 export interface UserSummary {
   _id: string;
   id?: string;
@@ -44,6 +58,13 @@ export interface Transaction {
   itemPrice?: number;
   platformFee?: number;
   totalAmount?: number;
+  sellerEarnings?: number;
+  paymentMethod?: PaymentMethod;
+  paymentStatus?: PaymentStatus;
+  paidAt?: string;
+  paymentDetails?: PaymentDetails;
+  escrowStatus?: EscrowStatus;
+  escrowReleasedAt?: string;
   notes?: string;
   createdAt: string;
   updatedAt?: string;
@@ -54,4 +75,14 @@ export interface TransactionResponse<T> {
   message?: string;
   count?: number;
   data: T;
+}
+
+export interface FinancialStats {
+  totalCommissionsEarned: number;
+  totalSalesVolume: number;
+  totalGrossAmount: number;
+  holdingEscrowAmount: number;
+  completedPaidCount: number;
+  holdingEscrowCount: number;
+  recentTransactions: any[];
 }

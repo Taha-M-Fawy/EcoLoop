@@ -48,6 +48,44 @@ const transactionSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: ''
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['vodafone_cash', 'orange_cash', 'etisalat_cash', 'we_pay', 'instapay', 'cash_wallet', 'none'],
+      default: 'none'
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['unpaid', 'pending', 'paid', 'refunded'],
+      default: 'unpaid'
+    },
+    paidAt: {
+      type: Date,
+      default: null
+    },
+    paymentDetails: {
+      senderWalletNumber: { type: String, default: '' },
+      receiverWalletNumber: { type: String, default: '' },
+      transactionRef: { type: String, default: '' },
+      provider: { type: String, default: '' },
+      paidAmount: { type: Number, default: 0 }
+    },
+    platformCommissionRate: {
+      type: Number,
+      default: 0.05
+    },
+    sellerEarnings: {
+      type: Number,
+      default: 0
+    },
+    escrowStatus: {
+      type: String,
+      enum: ['none', 'holding', 'released', 'refunded'],
+      default: 'none'
+    },
+    escrowReleasedAt: {
+      type: Date,
+      default: null
     }
   },
   {

@@ -91,7 +91,16 @@ const getTransactionByIdService = async (id, userId, role = 'user') => {
   return sanitizeTransactionPrivacy(transaction, userId, role);
 };
 
-const createTransactionService = async ({ itemId, requestId, donorOrSellerId, receiverId, notes }, currentUserId, role = 'user') => {
+const createTransactionService = async ({ 
+  itemId, 
+  requestId, 
+  donorOrSellerId, 
+  receiverId, 
+  notes, 
+  paymentMethod, 
+  paymentDetails, 
+  isPaid 
+}, currentUserId, role = 'user') => {
   if (String(donorOrSellerId) === String(receiverId)) {
     throw new Error('لا يمكنك إنشاء معاملة مع نفسك');
   }
@@ -132,13 +141,40 @@ const createTransactionService = async ({ itemId, requestId, donorOrSellerId, re
   let itemPrice = 0;
   let platformFee = 0;
   let totalAmount = 0;
+  let sellerEarnings = 0;
+  let transactionPaymentStatus = 'unpaid';
+  let escrowStatus = 'none';
+  let paidAt = null;
+  let finalPaymentDetails = {
+    senderWalletNumber: '',
+    receiverWalletNumber: '',
+    transactionRef: '',
+    provider: '',
+    paidAmount: 0
+  };
 
   if (itemId) {
     const itemObj = await Item.findById(itemId).select('type price').lean();
     if (itemObj?.type === 'sell' && itemObj?.price > 0) {
       itemPrice = Number(itemObj.price);
-      platformFee = Math.max(5, Math.round(itemPrice * 0.05)); // 5% رسم حماية المشتري (حد أدنى 5 جنيه)
+      // عمولة المنصة 5% مع حد أدنى 10 جنيه لحماية وتأمين المعاملة
+      platformFee = Math.max(10, Math.round(itemPrice * 0.05));
       totalAmount = itemPrice + platformFee;
+      sellerEarnings = itemPrice;
+
+      if (isPaid || paymentMethod) {
+        const chosenMethod = paymentMethod || 'vodafone_cash';
+        transactionPaymentStatus = 'paid';
+        paidAt = new Date();
+        escrowStatus = 'holding';
+        finalPaymentDetails = {
+          senderWalletNumber: paymentDetails?.senderWalletNumber || '',
+          receiverWalletNumber: paymentDetails?.receiverWalletNumber || '01012345678 (محفظة EcoLoop الرسمية)',
+          transactionRef: paymentDetails?.transactionRef || ('VF-' + Math.floor(10000000 + Math.random() * 90000000)),
+          provider: paymentDetails?.provider || chosenMethod,
+          paidAmount: totalAmount
+        };
+      }
     }
   }
 
@@ -152,6 +188,12 @@ const createTransactionService = async ({ itemId, requestId, donorOrSellerId, re
     itemPrice,
     platformFee,
     totalAmount,
+    sellerEarnings,
+    paymentMethod: paymentMethod || (transactionPaymentStatus === 'paid' ? 'vodafone_cash' : 'none'),
+    paymentStatus: transactionPaymentStatus,
+    paidAt,
+    paymentDetails: finalPaymentDetails,
+    escrowStatus,
     notes: notes || ''
   });
 
@@ -162,11 +204,15 @@ const createTransactionService = async ({ itemId, requestId, donorOrSellerId, re
   ]);
 
   if (itemId) {
+    const isPaidSell = transactionPaymentStatus === 'paid';
+
     // Receiver initiated request for an item -> Notify Donor
     await createNotificationService({
       userId: donorOrSellerId,
-      title: 'طلب استلام سلعة جديد 📦',
-      message: `طلب ${receiverUser?.username || receiverUser?.name || 'مستخدم'} استلام سلعتك: "${itemTitle}". يرجى قبول أو رفض المعاملة من صفحة المعاملات.`,
+      title: isPaidSell ? 'طلب شراء جديد وتم سداد المبلغ بالضمان! 💳' : 'طلب استلام سلعة جديد 📦',
+      message: isPaidSell
+        ? `قام ${receiverUser?.username || receiverUser?.name || 'مشتري'} بشراء سلعتك: "${itemTitle}". تم سداد المبلغ (${totalAmount} ج.م) وهو محفوظ في أمان المنصة. يرجى قبول المعاملة وتجهيز السلعة.`
+        : `طلب ${receiverUser?.username || receiverUser?.name || 'مستخدم'} استلام سلعتك: "${itemTitle}". يرجى قبول أو رفض المعاملة من صفحة المعاملات.`,
       type: 'transaction',
       relatedEntityId: transaction._id,
       entityType: 'Transaction'
@@ -175,8 +221,10 @@ const createTransactionService = async ({ itemId, requestId, donorOrSellerId, re
     // Notify Receiver (Confirmation)
     await createNotificationService({
       userId: receiverId,
-      title: 'تم إرسال طلب استلام السلعة بنجاح ✅',
-      message: `تم إرسال طلبك لاستلام سلعة "${itemTitle}" بنجاح! ستصلك رسالة فور موافقة المانح وظهور كود الاستلام (OTP).`,
+      title: isPaidSell ? 'تم تأكيد الدفع بنجاح ومبلغك في الضمان ✅' : 'تم إرسال طلب استلام السلعة بنجاح ✅',
+      message: isPaidSell
+        ? `تم سداد ${totalAmount} ج.م بنجاح عبر كاش لسلعة "${itemTitle}". تم حفظ المبلغ في الضمان، واحتفظ بكود الاستلام (${otp}) ولا تعطه للبائع إلا عند الاستلام وفحص السلعة.`
+        : `تم إرسال طلبك لاستلام سلعة "${itemTitle}" بنجاح! ستصلك رسالة فور موافقة المانح وظهور كود الاستلام (OTP).`,
       type: 'transaction',
       relatedEntityId: transaction._id,
       entityType: 'Transaction'
@@ -348,6 +396,17 @@ const updateTransactionStatusService = async (id, userId, { status, otp, notes }
 
     transaction.status = 'completed';
     if (notes) transaction.notes = notes;
+
+    // إذا كانت المعاملة بيع أو مدفوعة، يتم تحرير صافي أرباح البائع واقتطاع عمولة المنصة
+    const isSellTransaction = (transaction.itemPrice && transaction.itemPrice > 0) || transaction.paymentStatus === 'paid';
+    if (isSellTransaction) {
+      transaction.escrowStatus = 'released';
+      transaction.escrowReleasedAt = new Date();
+      if (!transaction.sellerEarnings || transaction.sellerEarnings === 0) {
+        transaction.sellerEarnings = transaction.itemPrice;
+      }
+    }
+
     await transaction.save();
 
     // تحديث حالة السلعة إن وجدت إلى completed
@@ -368,14 +427,19 @@ const updateTransactionStatusService = async (id, userId, { status, otp, notes }
       User.findByIdAndUpdate(transaction.receiverId, { $inc: { impactScore: 5 } }).catch(() => {})
     ]);
 
-    // إرسال إشعار لكلا الطرفين بالتقييم
-    const donorMsg = `تم إتمام عملية التبادل بنجاح! شكراً لمساهمتك المجتمعية. يمكنك الآن تقييم المستلم.`;
-    const receiverMsg = `تم استلامك للسلعة واكتمال المعاملة بنجاح! يرجى تقييم تجربتك مع المانح.`;
+    // إرسال إشعار لكلا الطرفين بالتقييم وتفاصيل التسوية
+    const donorMsg = isSellTransaction
+      ? `تم إتمام عملية البيع وتأكيد كود الاستلام بنجاح! تم تحرير أرباحك بقيمة (${transaction.sellerEarnings || transaction.itemPrice} ج.م) بعد خصم عمولة المنصة (${transaction.platformFee || 0} ج.م). يمكنك الآن تقييم المشتري.`
+      : `تم إتمام عملية التبادل بنجاح! شكراً لمساهمتك المجتمعية. يمكنك الآن تقييم المستلم.`;
+
+    const receiverMsg = isSellTransaction
+      ? `تم تأكيد استلامك للسلعة واكتمال عملية الشراء بأمان! شكراً لثقتك في منصة EcoLoop، يرجى تقييم تجربتك مع البائع.`
+      : `تم استلامك للسلعة واكتمال المعاملة بنجاح! يرجى تقييم تجربتك مع المانح.`;
 
     await Promise.all([
       createNotificationService({
         userId: transaction.donorOrSellerId,
-        title: 'اكتملت المعاملة بنجاح!',
+        title: isSellTransaction ? 'تم تحرير أرباحك واكتمال البيع! 💵' : 'اكتملت المعاملة بنجاح!',
         message: donorMsg,
         type: 'transaction',
         relatedEntityId: transaction._id,
@@ -383,7 +447,7 @@ const updateTransactionStatusService = async (id, userId, { status, otp, notes }
       }).catch(() => {}),
       createNotificationService({
         userId: transaction.receiverId,
-        title: 'اكتملت المعاملة بنجاح!',
+        title: 'اكتملت المعاملة بنجاح واستلمت السلعة!',
         message: receiverMsg,
         type: 'transaction',
         relatedEntityId: transaction._id,
@@ -401,10 +465,99 @@ const deleteTransactionService = async (id, userId) => {
   return Transaction.findByIdAndDelete(id);
 };
 
+const payTransactionService = async (id, userId, { paymentMethod, paymentDetails }, role = 'user') => {
+  const transaction = await Transaction.findById(id).populate('itemId');
+  if (!transaction) {
+    throw new Error('المعاملة غير موجودة');
+  }
+
+  const isReceiver = String(transaction.receiverId) === String(userId);
+  if (!isReceiver && role !== 'admin') {
+    throw new Error('المشتري فقط هو المخول بسداد قيمة المعاملة');
+  }
+
+  if (transaction.paymentStatus === 'paid') {
+    throw new Error('تم سداد قيمة هذه المعاملة بالفعل مسبقاً');
+  }
+
+  const chosenMethod = paymentMethod || 'vodafone_cash';
+  const total = transaction.totalAmount || (transaction.itemPrice + (transaction.platformFee || 0));
+
+  transaction.paymentMethod = chosenMethod;
+  transaction.paymentStatus = 'paid';
+  transaction.paidAt = new Date();
+  transaction.escrowStatus = 'holding';
+  transaction.sellerEarnings = transaction.itemPrice;
+  transaction.paymentDetails = {
+    senderWalletNumber: paymentDetails?.senderWalletNumber || '',
+    receiverWalletNumber: paymentDetails?.receiverWalletNumber || '01012345678 (محفظة EcoLoop الرسمية)',
+    transactionRef: paymentDetails?.transactionRef || ('VF-' + Math.floor(10000000 + Math.random() * 90000000)),
+    provider: paymentDetails?.provider || chosenMethod,
+    paidAmount: total
+  };
+
+  await transaction.save();
+
+  // Send notifications
+  await Promise.all([
+    createNotificationService({
+      userId: transaction.donorOrSellerId,
+      title: 'تم سداد قيمة السلعة عبر كاش! 💰',
+      message: `قام المشتري بدفع إجمالي المبلغ (${total} ج.م) عبر كاش، وهو محفوظ بأمان في الضمان (Escrow). يرجى قبول الطلب ومقابلة المشتري للتسليم.`,
+      type: 'transaction',
+      relatedEntityId: transaction._id,
+      entityType: 'Transaction'
+    }).catch(() => {}),
+    createNotificationService({
+      userId: transaction.receiverId,
+      title: 'تم تأكيد الدفع بنجاح ومبلغك في الضمان ✅',
+      message: `تم سداد ${total} ج.م بنجاح عبر كاش، ومبلغك في أمان الضمان. كود الاستلام السري (${transaction.handshakeOTP}) لا تعطه للبائع إلا عند فحص السلعة واستلامها.`,
+      type: 'transaction',
+      relatedEntityId: transaction._id,
+      entityType: 'Transaction'
+    }).catch(() => {})
+  ]);
+
+  return getTransactionByIdService(id, userId, role);
+};
+
+const getFinancialStatsService = async (userId, role = 'user') => {
+  const completedSellTransactions = await Transaction.find({
+    status: 'completed',
+    $or: [
+      { paymentStatus: 'paid' },
+      { itemPrice: { $gt: 0 } },
+      { platformFee: { $gt: 0 } }
+    ]
+  }).populate('itemId', 'title price images type').lean();
+
+  const totalCommissionsEarned = completedSellTransactions.reduce((acc, tx) => acc + (tx.platformFee || 0), 0);
+  const totalSalesVolume = completedSellTransactions.reduce((acc, tx) => acc + (tx.itemPrice || 0), 0);
+  const totalGrossAmount = completedSellTransactions.reduce((acc, tx) => acc + (tx.totalAmount || (tx.itemPrice + (tx.platformFee || 0))), 0);
+
+  const holdingTransactions = await Transaction.find({
+    escrowStatus: 'holding'
+  }).populate('itemId', 'title price images type').lean();
+
+  const holdingEscrowAmount = holdingTransactions.reduce((acc, tx) => acc + (tx.totalAmount || tx.itemPrice || 0), 0);
+
+  return {
+    totalCommissionsEarned,
+    totalSalesVolume,
+    totalGrossAmount,
+    holdingEscrowAmount,
+    completedPaidCount: completedSellTransactions.length,
+    holdingEscrowCount: holdingTransactions.length,
+    recentTransactions: completedSellTransactions.slice(0, 10)
+  };
+};
+
 module.exports = {
   createTransactionService,
   getTransactionsService,
   getTransactionByIdService,
   updateTransactionStatusService,
-  deleteTransactionService
+  deleteTransactionService,
+  payTransactionService,
+  getFinancialStatsService
 };

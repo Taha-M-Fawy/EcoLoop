@@ -1,18 +1,21 @@
 import { Component, ChangeDetectorRef, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth/services/auth';
 import { DashboardService } from './services/dashboard';
+import { TransactionService } from '../transactions/services/transaction';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, CommonModule],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css'
 })
 export class AdminDashboard implements OnInit {
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
+  private transactionService = inject(TransactionService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -20,6 +23,11 @@ export class AdminDashboard implements OnInit {
   itemsCount = 0;
   categoriesCount = 0;
   reviewsCount = 0;
+
+  totalCommissions = 0;
+  totalSalesVolume = 0;
+  holdingEscrow = 0;
+  completedSalesCount = 0;
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -66,6 +74,21 @@ export class AdminDashboard implements OnInit {
       },
       error: (err) => {
         console.error('Reviews Error:', err);
+      }
+    });
+
+    this.transactionService.getFinancialStats().subscribe({
+      next: (res) => {
+        if (res?.data) {
+          this.totalCommissions = res.data.totalCommissionsEarned || 0;
+          this.totalSalesVolume = res.data.totalSalesVolume || 0;
+          this.holdingEscrow = res.data.holdingEscrowAmount || 0;
+          this.completedSalesCount = res.data.completedPaidCount || 0;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        console.error('Financial stats error:', err);
       }
     });
   }

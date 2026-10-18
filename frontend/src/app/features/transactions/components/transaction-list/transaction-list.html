@@ -186,10 +186,67 @@
             </div>
           </div>
 
-          <!-- Financial / Monetization Breakdown (Compact) -->
-          <div *ngIf="tx.itemId?.type === 'sell' || (tx.platformFee && tx.platformFee > 0)" class="mt-2.5 pt-2 border-t border-slate-200/80 flex items-center justify-between text-[11px]">
-            <span class="text-slate-500">الإجمالي (شامل 5% حماية):</span>
-            <span class="font-extrabold text-emerald-700">{{ tx.totalAmount || ((tx.itemPrice || tx.itemId?.price || 0) + 5) }} ج.م</span>
+          <!-- Financial / Monetization Breakdown & Escrow Protection -->
+          <div *ngIf="isSellTransaction(tx)" class="mt-2.5 pt-2.5 border-t border-slate-200/90 space-y-2 text-xs">
+            
+            <!-- Paid State -->
+            <div *ngIf="isPaid(tx)" class="p-2.5 rounded-xl bg-emerald-50/90 border border-emerald-200/80 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-800">
+                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  </svg>
+                  <span>مدفوع ومحمي بالضمان (Escrow)</span>
+                </span>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                  {{ getPaymentMethodLabel(tx.paymentMethod) }}
+                </span>
+              </div>
+
+              <div class="flex items-center justify-between text-[11px] text-slate-700 pt-1 border-t border-emerald-200/60">
+                <span *ngIf="isReceiver(tx)">إجمالي ما دفعته:</span>
+                <span *ngIf="isDonor(tx)">صافي أرباحك:</span>
+                <span *ngIf="!isReceiver(tx) && !isDonor(tx)">إجمالي المعاملة:</span>
+
+                <strong class="font-black text-emerald-800" *ngIf="isReceiver(tx)">{{ tx.totalAmount || ((tx.itemPrice || 0) + (tx.platformFee || 10)) }} ج.م (شامل العمولة)</strong>
+                <strong class="font-black text-emerald-800" *ngIf="isDonor(tx)">{{ tx.sellerEarnings || tx.itemPrice }} ج.م (العمولة: {{ tx.platformFee || 0 }} ج.م)</strong>
+                <strong class="font-black text-emerald-800" *ngIf="!isReceiver(tx) && !isDonor(tx)">{{ tx.totalAmount }} ج.م</strong>
+              </div>
+
+              <div *ngIf="tx.status === 'completed'" class="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
+                <span>✓ تم تحرير الأرباح للبائع واقتطاع عمولة المنصة</span>
+              </div>
+            </div>
+
+            <!-- Unpaid State -->
+            <div *ngIf="!isPaid(tx)" class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-amber-800 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>بانتظار السداد أونلاين عبر كاش</span>
+                </span>
+                <strong class="text-xs font-black text-amber-900">{{ tx.totalAmount || ((tx.itemPrice || 0) + 10) }} ج.م</strong>
+              </div>
+
+              <!-- Receiver Pay Button -->
+              <button 
+                *ngIf="needsPayment(tx)" 
+                type="button" 
+                (click)="openPaymentForTransaction(tx)" 
+                class="w-full py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-black text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                </svg>
+                <span>دفع المبلغ الآن عبر كاش ({{ tx.totalAmount }} ج.م)</span>
+              </button>
+
+              <p *ngIf="isDonor(tx)" class="text-[10px] text-amber-700">
+                في انتظار قيام المشتري بسداد المبلغ في أمان المنصة قبل المقابلة والتسليم.
+              </p>
+            </div>
+
           </div>
 
           <!-- Eco Impact Badge (Compact) -->
@@ -405,4 +462,17 @@
     </div>
 
   </div>
+
+  <!-- Online Cash Payment Modal for Unpaid Transactions -->
+  <app-payment-modal
+    *ngIf="selectedTxForPayment"
+    [isOpen]="isPaymentModalOpen"
+    [transactionId]="selectedTxForPayment._id"
+    [itemTitle]="selectedTxForPayment.itemId?.title || 'سلعة معروضة'"
+    [itemPrice]="selectedTxForPayment.itemPrice || selectedTxForPayment.itemId?.price || 0"
+    [itemImage]="selectedTxForPayment.itemId?.images && selectedTxForPayment.itemId.images.length > 0 ? selectedTxForPayment.itemId.images[0] : ''"
+    [sellerName]="selectedTxForPayment.donorOrSellerId?.name || selectedTxForPayment.donorOrSellerId?.username || ''"
+    (close)="closePaymentModal()"
+    (paymentSuccess)="onPaymentSuccess($event)">
+  </app-payment-modal>
 </div>

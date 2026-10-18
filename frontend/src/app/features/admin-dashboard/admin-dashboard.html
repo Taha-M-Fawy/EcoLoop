@@ -8,6 +8,7 @@
 
     <nav>
       <a routerLink="/admin-dashboard">الرئيسية</a>
+      <a routerLink="/transactions">المعاملات والمدفوعات</a>
       <a routerLink="/users">المستخدمون</a>
       <a routerLink="/items">العناصر</a>
       <a routerLink="/categories">التصنيفات</a>
@@ -26,7 +27,7 @@
       <div>
         <span>لوحة تحكم ECLOOP</span>
         <h1>لوحة التحكم</h1>
-        <p>إدارة ومتابعة منصة EcoLoop</p>
+        <p>إدارة ومتابعة منصة EcoLoop والأرباح المحصلة</p>
       </div>
 
       <div class="admin-info">
@@ -36,6 +37,18 @@
     </div>
 
     <div class="cards">
+
+      <div class="card" style="border-right: 4px solid #10b981;">
+        <div class="card-title">عمولات المنصة المحصلة</div>
+        <strong style="color: #059669;">{{ totalCommissions }} ج.م</strong>
+        <p>أرباح المنصة من المبيعات (5%)</p>
+      </div>
+
+      <div class="card" style="border-right: 4px solid #6366f1;">
+        <div class="card-title">حجم المبيعات المنفذة</div>
+        <strong style="color: #4f46e5;">{{ totalSalesVolume }} ج.م</strong>
+        <p>{{ completedSalesCount }} عملية بيع مكتملة بنجاح</p>
+      </div>
 
       <div class="card">
         <div class="card-title">المستخدمون</div>
@@ -124,6 +137,8 @@
         </div>
 
         <div class="quick-actions">
+
+          <a routerLink="/transactions">سجل المعاملات والعمولات</a>
 
           <a routerLink="/users">إدارة المستخدمين</a>
 

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Transaction, TransactionResponse } from '../models/transaction.model';
+import { Transaction, TransactionResponse, FinancialStats } from '../models/transaction.model';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({
@@ -30,6 +30,9 @@ export class TransactionService {
     donorOrSellerId?: string;
     receiverId?: string;
     notes?: string;
+    paymentMethod?: string;
+    paymentDetails?: any;
+    isPaid?: boolean;
   }): Observable<TransactionResponse<Transaction>> {
     return this.http.post<TransactionResponse<Transaction>>(this.apiUrl, data);
   }
@@ -45,6 +48,25 @@ export class TransactionService {
       otp,
       notes
     });
+  }
+
+  payTransaction(
+    id: string,
+    paymentData: {
+      paymentMethod?: string;
+      paymentDetails?: {
+        senderWalletNumber?: string;
+        receiverWalletNumber?: string;
+        transactionRef?: string;
+        provider?: string;
+      };
+    }
+  ): Observable<TransactionResponse<Transaction>> {
+    return this.http.patch<TransactionResponse<Transaction>>(`${this.apiUrl}/${id}/pay`, paymentData);
+  }
+
+  getFinancialStats(): Observable<{ success: boolean; data: FinancialStats }> {
+    return this.http.get<{ success: boolean; data: FinancialStats }>(`${this.apiUrl}/stats/financial`);
   }
 
   deleteTransaction(id: string): Observable<{ success: boolean; message: string }> {

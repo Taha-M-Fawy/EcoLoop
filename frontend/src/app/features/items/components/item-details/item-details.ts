@@ -5,11 +5,12 @@ import { ItemService } from '../../services/item';
 import { ToastService } from '../../../../core/services/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { TransactionService } from '../../../transactions/services/transaction';
+import { PaymentModalComponent } from '../../../transactions/components/payment-modal/payment-modal.component';
 
 @Component({
   selector: 'app-item-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PaymentModalComponent],
   templateUrl: './item-details.html',
   styleUrl: './item-details.css',
 })
@@ -134,7 +135,65 @@ export class ItemDetailsComponent implements OnInit {
     }
   }
 
+  isPaymentModalOpen = false;
+
+  openPaymentModal(): void {
+    if (!this.currentUserId) {
+      this.toast.error('يرجى تسجيل الدخول أولاً لتتمكن من شراء هذه السلعة');
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    if (this.isOwner) {
+      this.toast.error('لا يمكنك شراء سلعة تمتلكها بالفعل');
+      return;
+    }
+
+    this.isPaymentModalOpen = true;
+  }
+
+  closePaymentModal(): void {
+    this.isPaymentModalOpen = false;
+  }
+
+  onPaymentCompleted(event: any): void {
+    this.isPaymentModalOpen = false;
+    const owner = this.item?.ownerId;
+    const ownerId = owner?._id || owner?.id || owner;
+
+    if (!ownerId || !this.currentUserId) {
+      this.toast.error('بيانات المعاملة غير مكتملة');
+      return;
+    }
+
+    this.requesting = true;
+    this.transactionService.createTransaction({
+      itemId: this.item._id,
+      donorOrSellerId: ownerId,
+      receiverId: this.currentUserId,
+      isPaid: true,
+      paymentMethod: event.paymentMethod,
+      paymentDetails: event.paymentDetails
+    }).subscribe({
+      next: () => {
+        this.requesting = false;
+        this.toast.success('تم إتمام الدفع بنجاح وإنشاء المعاملة! مبلغك في أمان الضمان وتم إشعار البائع.');
+        this.router.navigate(['/transactions']);
+      },
+      error: (err) => {
+        this.requesting = false;
+        console.error('Create transaction with payment error:', err);
+        this.toast.error(err?.error?.message || 'فشل في إنشاء المعاملة');
+      }
+    });
+  }
+
   onRequestItem(): void {
+    if (this.item?.type === 'sell') {
+      this.openPaymentModal();
+      return;
+    }
+
     if (!this.currentUserId) {
       this.toast.error('يرجى تسجيل الدخول أولاً لتتمكن من طلب استلام هذه السلعة');
       this.router.navigate(['/auth/login']);
